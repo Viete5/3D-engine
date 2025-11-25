@@ -1,0 +1,56 @@
+[
+{
+  "directory": "C:/prog/C++/openGL/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DGLFW_DLL @CMakeFiles/OpenGL_Project.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\OpenGL_Project.dir\\main.cpp.obj -c C:\\prog\\C++\\openGL\\main.cpp",
+  "file": "C:/prog/C++/openGL/main.cpp",
+  "output": "CMakeFiles/OpenGL_Project.dir/main.cpp.obj"
+},
+{
+  "directory": "C:/prog/C++/openGL/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DGLFW_DLL @CMakeFiles/OpenGL_Project.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\OpenGL_Project.dir\\shaders\\Shader.cpp.obj -c C:\\prog\\C++\\openGL\\shaders\\Shader.cpp",
+  "file": "C:/prog/C++/openGL/shaders/Shader.cpp",
+  "output": "CMakeFiles/OpenGL_Project.dir/shaders/Shader.cpp.obj"
+},
+{
+  "directory": "C:/prog/C++/openGL/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DGLFW_DLL @CMakeFiles/OpenGL_Project.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\OpenGL_Project.dir\\shaders\\EBO.cpp.obj -c C:\\prog\\C++\\openGL\\shaders\\EBO.cpp",
+  "file": "C:/prog/C++/openGL/shaders/EBO.cpp",
+  "output": "CMakeFiles/OpenGL_Project.dir/shaders/EBO.cpp.obj"
+},
+{
+  "directory": "C:/prog/C++/openGL/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DGLFW_DLL @CMakeFiles/OpenGL_Project.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\OpenGL_Project.dir\\shaders\\VAO.cpp.obj -c C:\\prog\\C++\\openGL\\shaders\\VAO.cpp",
+  "file": "C:/prog/C++/openGL/shaders/VAO.cpp",
+  "output": "CMakeFiles/OpenGL_Project.dir/shaders/VAO.cpp.obj"
+},
+{
+  "directory": "C:/prog/C++/openGL/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DGLFW_DLL @CMakeFiles/OpenGL_Project.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\OpenGL_Project.dir\\shaders\\VBO.cpp.obj -c C:\\prog\\C++\\openGL\\shaders\\VBO.cpp",
+  "file": "C:/prog/C++/openGL/shaders/VBO.cpp",
+  "output": "CMakeFiles/OpenGL_Project.dir/shaders/VBO.cpp.obj"
+},
+{
+  "directory": "C:/prog/C++/openGL/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DGLFW_DLL @CMakeFiles/OpenGL_Project.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\OpenGL_Project.dir\\shaders\\stb.cpp.obj -c C:\\prog\\C++\\openGL\\shaders\\stb.cpp",
+  "file": "C:/prog/C++/openGL/shaders/stb.cpp",
+  "output": "CMakeFiles/OpenGL_Project.dir/shaders/stb.cpp.obj"
+},
+{
+  "directory": "C:/prog/C++/openGL/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DGLFW_DLL @CMakeFiles/OpenGL_Project.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\OpenGL_Project.dir\\shaders\\Texture.cpp.obj -c C:\\prog\\C++\\openGL\\shaders\\Texture.cpp",
+  "file": "C:/prog/C++/openGL/shaders/Texture.cpp",
+  "output": "CMakeFiles/OpenGL_Project.dir/shaders/Texture.cpp.obj"
+},
+{
+  "directory": "C:/prog/C++/openGL/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DGLFW_DLL @CMakeFiles/OpenGL_Project.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\OpenGL_Project.dir\\Math\\Matrix.cpp.obj -c C:\\prog\\C++\\openGL\\Math\\Matrix.cpp",
+  "file": "C:/prog/C++/openGL/Math/Matrix.cpp",
+  "output": "CMakeFiles/OpenGL_Project.dir/Math/Matrix.cpp.obj"
+},
+{
+  "directory": "C:/prog/C++/openGL/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DGLFW_DLL @CMakeFiles/OpenGL_Project.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\OpenGL_Project.dir\\Math\\Vector.cpp.obj -c C:\\prog\\C++\\openGL\\Math\\Vector.cpp",
+  "file": "C:/prog/C++/openGL/Math/Vector.cpp",
+  "output": "CMakeFiles/OpenGL_Project.dir/Math/Vector.cpp.obj"
+}
+]
