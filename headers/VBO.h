@@ -7,6 +7,7 @@ class VBO {
     public:
         unsigned int ID;
         VBO(float *vertices, size_t size);
+        VBO();
 
         void Bind();
         void Unbind();

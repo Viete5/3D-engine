@@ -7,7 +7,7 @@ class EBO {
     public:
         unsigned int ID;
         EBO(unsigned int *indeces, size_t size);
-
+        EBO();
         void Bind();
         void Unbind();
         void Delete();
