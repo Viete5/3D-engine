@@ -11,6 +11,7 @@
 
 #include "headers/Matrix.h"
 #include "headers/Vector.h"
+#include "headers/Torus.h"
 
 #include <iostream>
 #include <cmath>
@@ -32,12 +33,15 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 //light
-Vector lightPos(2.0f, 1.0f, 3.0f);   
+Vector lightPos(5.0f, 5.0f, 0.0f);   
 Vector lightColor(1.0f, 1.0f, 1.0f);
 
+// --- Состояние переключения фигуры ---
+enum class RenderMode { Cube, Torus };
+RenderMode currentMode = RenderMode::Cube;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window);
+void processInput(GLFWwindow *window, RenderMode& mode);
 
 int main()
 {
@@ -67,7 +71,7 @@ int main()
     Shader shaderProgram("C:/prog/C++/openGL/shaders/shader.vert", "C:/prog/C++/openGL/shaders/shader.frag");
 
     // Вершины
-    float vertices[] = {
+    float CubeVertices[] = {
         // Передняя
         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
          0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
@@ -100,7 +104,7 @@ int main()
         -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
     };
 
-    unsigned int indices[] = {
+    unsigned int CubeIndices[] = {
         0, 1, 2,  2, 3, 0,
         4, 7, 6,  6, 5, 4,
         10, 8, 9,  9, 11, 10,
@@ -119,18 +123,21 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
 
-    VAO VAO1;
-    VAO1.Bind();
-    VBO VBO1(vertices, sizeof(vertices));
-    EBO EBO1(indices, sizeof(indices));
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
-    VAO1.LinkAttrib(VBO1, 1, 2, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    VAO1.LinkAttrib(VBO1, 2, 3, GL_FLOAT, 8 * sizeof(float), (void*)(5 * sizeof(float)));
-    VAO1.Unbind();
-    VBO1.Unbind();
-    EBO1.Unbind();
 
-    Texture coolTexture("C:/prog/C++/openGL/resource/cat.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+    VAO cubeVAO1;
+    cubeVAO1.Bind();
+    VBO cubeVBO1(CubeVertices, sizeof(CubeVertices));
+    EBO cubeEBO1(CubeIndices, sizeof(CubeIndices));
+    cubeVAO1.LinkAttrib(cubeVBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+    cubeVAO1.LinkAttrib(cubeVBO1, 1, 2, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    cubeVAO1.LinkAttrib(cubeVBO1, 2, 3, GL_FLOAT, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+    cubeVAO1.Unbind();
+    cubeVBO1.Unbind();
+    cubeEBO1.Unbind();
+
+    Torus torus(1.0f, 0.4f, 50, 50);
+
+    Texture coolTexture("C:/prog/C++/openGL/resource/white.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
     shaderProgram.Activate();
     coolTexture.texUnit(shaderProgram, "ourTexture", 0);
 
@@ -149,7 +156,7 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        processInput(window);
+        processInput(window,currentMode);
 
         // Логика вращения
         if (isRotating) {
@@ -192,24 +199,27 @@ int main()
         glUniformMatrix4fv(viewLoc, 1, GL_TRUE, &view.at(0,0));
         glUniformMatrix4fv(modelLoc, 1, GL_TRUE, &model.at(0,0));
         glUniformMatrix4fv(normalMatrixLoc, 1, GL_TRUE, &normalMatrix.at(0,0));
-
-        VAO1.Bind();
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
+        if (currentMode==RenderMode::Torus) {
+            torus.Draw();
+        }
+        else {
+            cubeVAO1.Bind();
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        }    
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    VAO1.Delete();
-    VBO1.Delete();
-    EBO1.Delete();
+    cubeVAO1.Delete();
+    cubeVBO1.Delete();
+    cubeEBO1.Delete();
     shaderProgram.Delete();
     coolTexture.Delete();
     glfwTerminate();
     return 0;
 }
 
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow *window, RenderMode& mode)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -243,6 +253,11 @@ void processInput(GLFWwindow *window)
         isRotating = !isRotating;
     }
     spacePressedLastFrame = spacePressed;
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+        mode = RenderMode::Cube;
+        
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+        mode = RenderMode::Torus;
 }
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {

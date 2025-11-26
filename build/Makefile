@@ -152,6 +152,30 @@ Math/Matrix.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\OpenGL_Project.dir\build.make CMakeFiles/OpenGL_Project.dir/Math/Matrix.cpp.s
 .PHONY : Math/Matrix.cpp.s
 
+Math/Torus.obj: Math/Torus.cpp.obj
+.PHONY : Math/Torus.obj
+
+# target to build an object file
+Math/Torus.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\OpenGL_Project.dir\build.make CMakeFiles/OpenGL_Project.dir/Math/Torus.cpp.obj
+.PHONY : Math/Torus.cpp.obj
+
+Math/Torus.i: Math/Torus.cpp.i
+.PHONY : Math/Torus.i
+
+# target to preprocess a source file
+Math/Torus.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\OpenGL_Project.dir\build.make CMakeFiles/OpenGL_Project.dir/Math/Torus.cpp.i
+.PHONY : Math/Torus.cpp.i
+
+Math/Torus.s: Math/Torus.cpp.s
+.PHONY : Math/Torus.s
+
+# target to generate assembly for a file
+Math/Torus.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\OpenGL_Project.dir\build.make CMakeFiles/OpenGL_Project.dir/Math/Torus.cpp.s
+.PHONY : Math/Torus.cpp.s
+
 Math/Vector.obj: Math/Vector.cpp.obj
 .PHONY : Math/Vector.obj
 
@@ -356,6 +380,9 @@ help:
 	@echo ... Math/Matrix.obj
 	@echo ... Math/Matrix.i
 	@echo ... Math/Matrix.s
+	@echo ... Math/Torus.obj
+	@echo ... Math/Torus.i
+	@echo ... Math/Torus.s
 	@echo ... Math/Vector.obj
 	@echo ... Math/Vector.i
 	@echo ... Math/Vector.s

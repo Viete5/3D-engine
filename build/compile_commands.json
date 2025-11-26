@@ -52,5 +52,11 @@
   "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DGLFW_DLL @CMakeFiles/OpenGL_Project.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\OpenGL_Project.dir\\Math\\Vector.cpp.obj -c C:\\prog\\C++\\openGL\\Math\\Vector.cpp",
   "file": "C:/prog/C++/openGL/Math/Vector.cpp",
   "output": "CMakeFiles/OpenGL_Project.dir/Math/Vector.cpp.obj"
+},
+{
+  "directory": "C:/prog/C++/openGL/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DGLFW_DLL @CMakeFiles/OpenGL_Project.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\OpenGL_Project.dir\\Math\\Torus.cpp.obj -c C:\\prog\\C++\\openGL\\Math\\Torus.cpp",
+  "file": "C:/prog/C++/openGL/Math/Torus.cpp",
+  "output": "CMakeFiles/OpenGL_Project.dir/Math/Torus.cpp.obj"
 }
 ]

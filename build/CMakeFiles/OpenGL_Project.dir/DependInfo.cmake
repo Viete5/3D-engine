@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/prog/C++/openGL/Math/Matrix.cpp" "CMakeFiles/OpenGL_Project.dir/Math/Matrix.cpp.obj" "gcc" "CMakeFiles/OpenGL_Project.dir/Math/Matrix.cpp.obj.d"
+  "C:/prog/C++/openGL/Math/Torus.cpp" "CMakeFiles/OpenGL_Project.dir/Math/Torus.cpp.obj" "gcc" "CMakeFiles/OpenGL_Project.dir/Math/Torus.cpp.obj.d"
   "C:/prog/C++/openGL/Math/Vector.cpp" "CMakeFiles/OpenGL_Project.dir/Math/Vector.cpp.obj" "gcc" "CMakeFiles/OpenGL_Project.dir/Math/Vector.cpp.obj.d"
   "C:/prog/C++/openGL/main.cpp" "CMakeFiles/OpenGL_Project.dir/main.cpp.obj" "gcc" "CMakeFiles/OpenGL_Project.dir/main.cpp.obj.d"
   "C:/prog/C++/openGL/shaders/EBO.cpp" "CMakeFiles/OpenGL_Project.dir/shaders/EBO.cpp.obj" "gcc" "CMakeFiles/OpenGL_Project.dir/shaders/EBO.cpp.obj.d"

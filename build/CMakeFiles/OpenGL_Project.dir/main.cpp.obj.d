@@ -177,4 +177,12 @@ CMakeFiles/OpenGL_Project.dir/main.cpp.obj: C:\prog\C++\openGL\main.cpp \
  C:/msys64/mingw64/include/c++/15.2.0/tr1/poly_hermite.tcc \
  C:/msys64/mingw64/include/c++/15.2.0/tr1/poly_laguerre.tcc \
  C:/msys64/mingw64/include/c++/15.2.0/tr1/riemann_zeta.tcc \
- C:\prog\C++\openGL\headers\Vector.h C:\prog\C++\openGL\headers/Vector.h
+ C:\prog\C++\openGL\headers\Vector.h C:\prog\C++\openGL\headers/Vector.h \
+ C:\prog\C++\openGL\headers/Torus.h \
+ C:/msys64/mingw64/include/c++/15.2.0/vector \
+ C:/msys64/mingw64/include/c++/15.2.0/bits/stl_uninitialized.h \
+ C:/msys64/mingw64/include/c++/15.2.0/bits/stl_vector.h \
+ C:/msys64/mingw64/include/c++/15.2.0/bits/stl_bvector.h \
+ C:/msys64/mingw64/include/c++/15.2.0/bits/vector.tcc \
+ C:\prog\C++\openGL\headers/VAO.h C:\prog\C++\openGL\headers/EBO.h \
+ C:\prog\C++\openGL\headers/Vector.h C:\prog\C++\openGL\headers/Matrix.h

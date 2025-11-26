@@ -101,12 +101,12 @@ void Torus::generateGeometry() {
             unsigned int P_D = BaseIndex + (slices + 1) + 1;
 
             indices.push_back(P_A);
-            indices.push_back(P_C);
             indices.push_back(P_B);
+            indices.push_back(P_C);
 
-            indices.push_back(P_B);
-            indices.push_back(P_C);
             indices.push_back(P_D);
+            indices.push_back(P_C);
+            indices.push_back(P_B);
         }
     }
 }

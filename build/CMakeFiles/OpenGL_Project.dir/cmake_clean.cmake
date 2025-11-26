@@ -1,6 +1,8 @@
 file(REMOVE_RECURSE
   "CMakeFiles/OpenGL_Project.dir/Math/Matrix.cpp.obj"
   "CMakeFiles/OpenGL_Project.dir/Math/Matrix.cpp.obj.d"
+  "CMakeFiles/OpenGL_Project.dir/Math/Torus.cpp.obj"
+  "CMakeFiles/OpenGL_Project.dir/Math/Torus.cpp.obj.d"
   "CMakeFiles/OpenGL_Project.dir/Math/Vector.cpp.obj"
   "CMakeFiles/OpenGL_Project.dir/Math/Vector.cpp.obj.d"
   "CMakeFiles/OpenGL_Project.dir/main.cpp.obj"

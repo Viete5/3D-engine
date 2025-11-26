@@ -27,6 +27,7 @@ add_executable(${PROJECT_NAME}
     shaders/Texture.cpp
     Math/Matrix.cpp
     Math/Vector.cpp
+    Math/Torus.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
