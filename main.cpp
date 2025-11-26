@@ -62,7 +62,7 @@ int main()
         return -1;
     }
 
-    glEnable(GL_DEPTH_TEST);
+
 
     Shader shaderProgram("C:/prog/C++/openGL/shaders/shader.vert", "C:/prog/C++/openGL/shaders/shader.frag");
 
@@ -102,12 +102,22 @@ int main()
 
     unsigned int indices[] = {
         0, 1, 2,  2, 3, 0,
-        4, 5, 6,  6, 7, 4,
-        8, 9, 10,  10, 11, 9,
-        12, 13, 14,  14, 15, 13, 
-        16, 17, 18,  18, 19, 17,
-        20, 21, 22,  22, 23, 21
+        4, 7, 6,  6, 5, 4,
+        10, 8, 9,  9, 11, 10,
+        14, 13, 12,  14, 15, 13, 
+        16, 17, 18,  19, 18, 17,
+        20, 22, 23,  23, 21, 20
     };
+
+    //back-face culling
+    glFrontFace(GL_CCW);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+
+    //z-buffer
+    glEnable(GL_DEPTH_TEST);
+
 
     VAO VAO1;
     VAO1.Bind();
@@ -165,9 +175,8 @@ int main()
         Matrix4 view = Matrix4::lookAt(camPos, target, up);
 
         // 3. MODEL
-        
         Matrix4 transMat = Matrix4::translate(cubePos.getX(), cubePos.getY(), cubePos.getZ());
-        Matrix4 rotYMat = Matrix4::rotateY(rotationAngle);
+        Matrix4 rotYMat = Matrix4::rotateY(rotationAngle*0.5f);
         Matrix4 rotXMat = Matrix4::rotateX(rotationAngle); 
 
         //матрица преобразования из локальной системы координат в камерную
