@@ -251,3 +251,9 @@ Matrix4 Matrix4::reversed() {
     rev = rev.trans();
     return rev;
 }
+
+Matrix4 Matrix4::normMatrix() const{
+    Matrix4 temp = *this;
+    temp = temp.reversed().trans();
+    return temp;
+}

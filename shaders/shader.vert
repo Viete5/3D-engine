@@ -13,6 +13,6 @@ void main()
 {
     gl_Position = projection * view * model * vec4(aPos, 1.0);
     TexCoord = aTex;
-    fragPos = vec3(vec4(aPos,1.0)*model);
+    fragPos = vec3(model*vec4(aPos,1.0));
     norCoord = normalize(mat3(normalMatrix)*aNor);
 }

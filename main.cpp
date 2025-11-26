@@ -31,6 +31,11 @@ bool spacePressedLastFrame = false;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+//light
+Vector lightPos(2.0f, 1.0f, 3.0f);   
+Vector lightColor(1.0f, 1.0f, 1.0f);
+
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
@@ -74,34 +79,34 @@ int main()
          0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 0.0f, -1.0f,
         -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f, 0.0f, -1.0f,
         // верхняя
-        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+         0.5f, 0.5f, -0.5f,  1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+         -0.5f,  0.5f, 0.5f,  0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
         // нижняя
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f, -1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f, -1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f, -1.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f, -1.0f, 0.0f,
+         0.5f, -0.5f,  -0.5f,  1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
+        -0.5f,  -0.5f,  0.5f,  0.0f, 1.0f, 0.0f, -1.0f, 0.0f,
+        -0.5f,  -0.5f,  -0.5f,  0.0f, 0.0f, 0.0f, -1.0f, 0.0f,
         // правая
-        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+         0.5f,  0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
         // левая
-        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+         -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+         -0.5f,  0.5f, 0.5f,  0.0f, 1.0f, -1.0f, 0.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
     };
 
     unsigned int indices[] = {
         0, 1, 2,  2, 3, 0,
         4, 5, 6,  6, 7, 4,
-        8, 9, 10,  10, 11, 8,
-        12, 13, 14,  14, 15, 12, 
-        16, 17, 18,  18, 19, 16,
-        20, 21, 22,  22, 23, 20
+        8, 9, 10,  10, 11, 9,
+        12, 13, 14,  14, 15, 13, 
+        16, 17, 18,  18, 19, 17,
+        20, 21, 22,  22, 23, 21
     };
 
     VAO VAO1;
@@ -122,6 +127,9 @@ int main()
     GLint modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
     GLint viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
     GLint projLoc = glGetUniformLocation(shaderProgram.ID, "projection");
+    GLint normalMatrixLoc = glGetUniformLocation(shaderProgram.ID, "normalMatrix");
+    GLint lightPosLoc = glGetUniformLocation(shaderProgram.ID, "lightPos");
+    GLint lightColorLoc = glGetUniformLocation(shaderProgram.ID, "LightColour");
 
     // --- RENDER LOOP ---
     while (!glfwWindowShouldClose(window))
@@ -138,7 +146,7 @@ int main()
             rotationAngle +=  deltaTime; // Скорость вращения
         }
 
-        // glClearColor(0.f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shaderProgram.Activate();
@@ -164,14 +172,20 @@ int main()
 
         //матрица преобразования из локальной системы координат в камерную
         Matrix4 model = transMat * (rotYMat * rotXMat);
+
+        //матрица для расчета света
+        Matrix4 normalMatrix = model.normMatrix();
         
-        // Передача в шейдер. GL_TRUE транспонирует матрицы (важно для твоего translate)
+        // Передача в шейдер. 
+        glUniform3f(lightPosLoc, lightPos.getX(), lightPos.getY(), lightPos.getZ());
+        glUniform3f(lightColorLoc, lightColor.getX(), lightColor.getY(), lightColor.getZ());
         glUniformMatrix4fv(projLoc, 1, GL_TRUE, &projection.at(0,0));
         glUniformMatrix4fv(viewLoc, 1, GL_TRUE, &view.at(0,0));
         glUniformMatrix4fv(modelLoc, 1, GL_TRUE, &model.at(0,0));
+        glUniformMatrix4fv(normalMatrixLoc, 1, GL_TRUE, &normalMatrix.at(0,0));
 
         VAO1.Bind();
-        glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

@@ -22,6 +22,7 @@ public:
     static Matrix4 scale(float,float,float);
     static Matrix4 Perspective(float , float , float, float);
     static Matrix4 lookAt(const Vector&,const Vector&,const Vector&);
+    Matrix4 normMatrix() const;
 
 private:
     Matrix4 trianM(int&);
