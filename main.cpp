@@ -122,7 +122,31 @@ int main()
     //z-buffer
     glEnable(GL_DEPTH_TEST);
 
+    //SHADOW
+    unsigned int depthMapFBO;
+    glGenFramebuffers(1, &depthMapFBO);
 
+    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    unsigned int depthMap;
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH,
+    SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE) {
+        std::cout<<"DEPTH BUFFER ERROR";
+        return -1;
+    }
 
     VAO cubeVAO1;
     cubeVAO1.Bind();
@@ -151,23 +175,20 @@ int main()
     // --- RENDER LOOP ---
     while (!glfwWindowShouldClose(window))
     {
+        processInput(window,currentMode);
+
+        //ВЫЧИСЛЕНИЯ
+
         // DeltaTime расчет
         float currentFrame = (float)glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        processInput(window,currentMode);
-
+        
         // Логика вращения
         if (isRotating) {
             rotationAngle +=  deltaTime; // Скорость вращения
         }
-
-        glClearColor(0.f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        shaderProgram.Activate();
-        coolTexture.Bind();
 
         // 1. PROJECTION (Зум)
         // Конвертируем FOV в радианы
@@ -186,11 +207,19 @@ int main()
         Matrix4 rotYMat = Matrix4::rotateY(rotationAngle*0.5f);
         Matrix4 rotXMat = Matrix4::rotateX(rotationAngle); 
 
-        //матрица преобразования из локальной системы координат в камерную
+        //матрица преобразования из локальной системы координат в мировую
         Matrix4 model = transMat * (rotYMat * rotXMat);
 
         //матрица для расчета света
         Matrix4 normalMatrix = model.normMatrix();
+
+
+
+        shaderProgram.Activate();
+        coolTexture.Bind();
+
+        glClearColor(0.f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         // Передача в шейдер. 
         glUniform3f(lightPosLoc, lightPos.getX(), lightPos.getY(), lightPos.getZ());
