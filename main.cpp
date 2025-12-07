@@ -33,7 +33,7 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 //light
-Vector lightPos(5.0f, 5.0f, 0.0f);   
+Vector lightPos(5.0f, 0.0f, 0.0f);   
 Vector lightColor(1.0f, 1.0f, 1.0f);
 
 // --- Состояние переключения фигуры ---
@@ -198,7 +198,7 @@ int main()
         // Конвертируем FOV в радианы
         float fovRad = fov * (3.14159f / 180.0f);
         float aspect = (float)SCR_WIDTH / (float)SCR_HEIGHT;
-        Matrix4 projection = Matrix4::Perspective(fovRad, aspect, 0.1f, 100.0f);
+        Matrix4 projection = Matrix4::Perspective(fovRad, aspect, 0.01f, 500.0f);
         
         // 2. VIEW
         Vector camPos(0.0f, 0.0f, 3.0f); 
@@ -219,13 +219,13 @@ int main()
 
 
         //матрицы для shade
-        Matrix4 ortho = Matrix4::ortho(-10.0f,10.0f,-10.0f,10.0f,0.1f,100.0f);
+        Matrix4 ortho = Matrix4::ortho(-10.0f,10.0f,-10.0f,10.0f,0.01f,500.0f);
         Matrix4 lightView = Matrix4::lookAt(lightPos,target,up);
 
         Matrix4 lightSpaceMatrix = ortho * lightView ;
 
         //первый проход
-        glCullFace(GL_FRONT);
+        // glCullFace(GL_FRONT);
 
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
@@ -235,6 +235,8 @@ int main()
         GLint modelShadowLoc = glGetUniformLocation(shadowShader.ID, "model");
         glUniformMatrix4fv(lightSpaceLoc, 1, GL_TRUE, &lightSpaceMatrix.at(0,0));
         glUniformMatrix4fv(modelShadowLoc, 1, GL_TRUE, &model.at(0,0));
+        
+        glDisable(GL_CULL_FACE);
         if (currentMode==RenderMode::Torus) {
             torus.Draw();
         }
@@ -245,7 +247,7 @@ int main()
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         //второй проход
-        glCullFace(GL_BACK);
+        glEnable(GL_CULL_FACE);
 
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
