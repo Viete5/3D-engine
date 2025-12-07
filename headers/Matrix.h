@@ -22,6 +22,7 @@ public:
     static Matrix4 scale(float,float,float);
     static Matrix4 Perspective(float , float , float, float);
     static Matrix4 lookAt(const Vector&,const Vector&,const Vector&);
+    static Matrix4 ortho(float,float,float,float,float,float);
     Matrix4 normMatrix() const;
 
 private:

@@ -69,6 +69,7 @@ int main()
 
 
     Shader shaderProgram("C:/prog/C++/openGL/shaders/shader.vert", "C:/prog/C++/openGL/shaders/shader.frag");
+    Shader shadowShader("C:/prog/C++/openGL/shadow/shadow.vert", "C:/prog/C++/openGL/shadow/shadow.frag");
 
     // Вершины
     float CubeVertices[] = {
@@ -126,6 +127,7 @@ int main()
     unsigned int depthMapFBO;
     glGenFramebuffers(1, &depthMapFBO);
 
+
     const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
     unsigned int depthMap;
     glGenTextures(1, &depthMap);
@@ -134,8 +136,8 @@ int main()
     SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
@@ -172,6 +174,8 @@ int main()
     GLint lightPosLoc = glGetUniformLocation(shaderProgram.ID, "lightPos");
     GLint lightColorLoc = glGetUniformLocation(shaderProgram.ID, "LightColour");
 
+    GLint depthMatrixID = glGetUniformLocation(shadowShader.ID, "depthMVP");
+
     // --- RENDER LOOP ---
     while (!glfwWindowShouldClose(window))
     {
@@ -207,19 +211,53 @@ int main()
         Matrix4 rotYMat = Matrix4::rotateY(rotationAngle*0.5f);
         Matrix4 rotXMat = Matrix4::rotateX(rotationAngle); 
 
-        //матрица преобразования из локальной системы координат в мировую
         Matrix4 model = transMat * (rotYMat * rotXMat);
 
-        //матрица для расчета света
+
+        //матрица нормали  для расчета света
         Matrix4 normalMatrix = model.normMatrix();
 
 
+        //матрицы для shade
+        Matrix4 ortho = Matrix4::ortho(-10.0f,10.0f,-10.0f,10.0f,0.1f,100.0f);
+        Matrix4 lightView = Matrix4::lookAt(lightPos,target,up);
+
+        Matrix4 lightSpaceMatrix = ortho * lightView ;
+
+        //первый проход
+        glCullFace(GL_FRONT);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        shadowShader.Activate();
+        GLint lightSpaceLoc = glGetUniformLocation(shadowShader.ID, "lightSpaceMatrix");
+        GLint modelShadowLoc = glGetUniformLocation(shadowShader.ID, "model");
+        glUniformMatrix4fv(lightSpaceLoc, 1, GL_TRUE, &lightSpaceMatrix.at(0,0));
+        glUniformMatrix4fv(modelShadowLoc, 1, GL_TRUE, &model.at(0,0));
+        if (currentMode==RenderMode::Torus) {
+            torus.Draw();
+        }
+        else {
+            cubeVAO1.Bind();
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        }  
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        //второй проход
+        glCullFace(GL_BACK);
+
+        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shaderProgram.Activate();
+        glActiveTexture(GL_TEXTURE0);
         coolTexture.Bind();
 
-        glClearColor(0.f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, depthMap);
+        glUniform1i(glGetUniformLocation(shaderProgram.ID, "shadowMap"), 1);
         
         // Передача в шейдер. 
         glUniform3f(lightPosLoc, lightPos.getX(), lightPos.getY(), lightPos.getZ());
@@ -228,6 +266,8 @@ int main()
         glUniformMatrix4fv(viewLoc, 1, GL_TRUE, &view.at(0,0));
         glUniformMatrix4fv(modelLoc, 1, GL_TRUE, &model.at(0,0));
         glUniformMatrix4fv(normalMatrixLoc, 1, GL_TRUE, &normalMatrix.at(0,0));
+        GLint lsLocMain = glGetUniformLocation(shaderProgram.ID, "lightSpaceMatrix");
+        glUniformMatrix4fv(lsLocMain, 1, GL_TRUE, &lightSpaceMatrix.at(0,0));
         if (currentMode==RenderMode::Torus) {
             torus.Draw();
         }

@@ -64,7 +64,7 @@ Vector Torus::calculateNormal(float angleXY,float angleZ) const {
     float z = std::sin(angleZ);
     Vector temp(x,y,z);
     return temp;
-}
+} 
 
 void Torus::generateGeometry() {
     float dU = 2.0*pi/slices;

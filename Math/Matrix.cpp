@@ -257,3 +257,39 @@ Matrix4 Matrix4::normMatrix() const{
     temp = temp.reversed().trans();
     return temp;
 }
+
+
+Matrix4 Matrix4::ortho(float left, float right, float bottom, float top, float zNear, float zFar) 
+{
+    Matrix4 result; 
+    float tx = -(right + left) / (right - left);
+    float ty = -(top + bottom) / (top - bottom);
+    float tz = -(zFar + zNear) / (zFar - zNear);
+    float R_minus_L = right - left;
+    float T_minus_B = top - bottom;
+    float F_minus_N = zFar - zNear;
+
+    result.at(0, 0) = 2.0f / R_minus_L;
+    result.at(0, 1) = 0.0f;
+    result.at(0, 2) = 0.0f;
+    result.at(0, 3) = tx; 
+    
+
+    result.at(1, 0) = 0.0f;
+    result.at(1, 1) = 2.0f / T_minus_B;
+    result.at(1, 2) = 0.0f;
+    result.at(1, 3) = ty; 
+
+    result.at(2, 0) = 0.0f;
+    result.at(2, 1) = 0.0f;
+    result.at(2, 2) = -2.0f / F_minus_N; 
+    result.at(2, 3) = tz; 
+
+
+    result.at(3, 0) = 0.0f;
+    result.at(3, 1) = 0.0f;
+    result.at(3, 2) = 0.0f;
+    result.at(3, 3) = 1.0f;
+
+    return result;
+};
