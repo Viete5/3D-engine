@@ -8,7 +8,6 @@ class Matrix4 {
 public:
     Matrix4();
     Matrix4(float);
-    void setM(float*);
     float& at(int, int);
     const float& at(int, int) const;
     Matrix4 operator*(const Matrix4 &) const;

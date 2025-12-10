@@ -18,14 +18,11 @@ Torus::Torus(float R, float r, int stacks, int slices)
       slices(slices), 
       indexCount(0)
 {
-    // 1. Генерация геометрии (заполняет vertices и indices)
+
     generateGeometry();
-
-    // 2. Настройка VAO, VBO, EBO и загрузка данных (теперь безопасно)
-
+    
     torusVAO.Bind();
 
-    // VBO и EBO теперь существуют благодаря списку инициализации
     torusVBO.Bind();
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
