@@ -175,6 +175,8 @@ int main()
     GLint lightColorLoc = glGetUniformLocation(shaderProgram.ID, "LightColour");
 
     GLint depthMatrixID = glGetUniformLocation(shadowShader.ID, "depthMVP");
+    GLint lightSpaceLoc = glGetUniformLocation(shadowShader.ID, "lightSpaceMatrix");
+    GLint modelShadowLoc = glGetUniformLocation(shadowShader.ID, "model");
 
     // --- RENDER LOOP ---
     while (!glfwWindowShouldClose(window))
@@ -231,8 +233,6 @@ int main()
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glClear(GL_DEPTH_BUFFER_BIT);
         shadowShader.Activate();
-        GLint lightSpaceLoc = glGetUniformLocation(shadowShader.ID, "lightSpaceMatrix");
-        GLint modelShadowLoc = glGetUniformLocation(shadowShader.ID, "model");
         glUniformMatrix4fv(lightSpaceLoc, 1, GL_TRUE, &lightSpaceMatrix.at(0,0));
         glUniformMatrix4fv(modelShadowLoc, 1, GL_TRUE, &model.at(0,0));
         
