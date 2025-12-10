@@ -14,9 +14,6 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${GLFW_ROOT})
 
 find_package(glfw3 CONFIG REQUIRED)
 
-# -----------------------------------------------------------
-# ИЗМЕНЕНИЕ: Только main.cpp для компиляции
-# -----------------------------------------------------------
 add_executable(${PROJECT_NAME}
     main.cpp
     shaders/Shader.cpp

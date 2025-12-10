@@ -1,3 +1,0 @@
-C:/prog/C++/openGL/build/CMakeFiles/OpenGL_Project.dir
-C:/prog/C++/openGL/build/CMakeFiles/edit_cache.dir
-C:/prog/C++/openGL/build/CMakeFiles/rebuild_cache.dir
