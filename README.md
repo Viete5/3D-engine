@@ -83,8 +83,8 @@ $$I_{diffuse} = L_{color} \times K_{diffuse} \times \max(0, \mathbf{N}_{norm} \c
 
 -----
 
-![alt text](image.png)
-![alt text](image-1.png)
-![alt text](image-4.png)
-![alt text](image-2.png)
-![alt text](image-3.png)
+![alt text](resource/image.png)
+![alt text](resource/image-1.png)
+![alt text](resource/image-4.png)
+![alt text](resource/image-2.png)
+![alt text](resource/image-3.png)
