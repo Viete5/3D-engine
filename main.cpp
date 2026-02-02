@@ -3,16 +3,13 @@
 #include <stb/stb_image.h>
 
 #include "headers/shader.h"
-#include "headers/VAO.h"
-#include "headers/VBO.h"
-#include "headers/EBO.h"
 #include "headers/Texture.h"
 #include "headers/Cube.h"
-
-
 #include "headers/Matrix.h"
 #include "headers/Vector.h"
 #include "headers/Torus.h"
+#include "headers/Camera.h"
+#include "headers/Light.h"
 
 #include <iostream>
 #include <cmath>
@@ -33,9 +30,6 @@ bool spacePressedLastFrame = false;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-// Light
-Vector lightPos(5.0f, 0.0f, 0.0f);   
-Vector lightColor(1.0f, 1.0f, 1.0f);
 
 // Change the figure 
 enum class RenderMode { Cube, Torus };
@@ -66,11 +60,15 @@ int main()
     Shader shaderProgram("C:/prog/C++/openGL/shaders/shader.vert", "C:/prog/C++/openGL/shaders/shader.frag");
     Shader shadowShader("C:/prog/C++/openGL/shadow/shadow.vert", "C:/prog/C++/openGL/shadow/shadow.frag");
 
+    shaderProgram.Activate();
+    shaderProgram.setInt("shadowMap", 1);
+
     // Objects
     Cube Cube1(Vector(0.0f,0.0f,0.0f));
     Cube Cube2(Vector(3.0f,1.0f,-10.6f));
 
     Torus torus(1.0f, 0.4f, 50, 50);
+
 
     //back-face culling
     glFrontFace(GL_CCW);
@@ -107,14 +105,15 @@ int main()
         std::cout<<"DEPTH BUFFER ERROR";
         return -1;
     }
-
     
 
+    // Texture
     Texture coolTexture("C:/prog/C++/openGL/resource/white.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
-    shaderProgram.Activate();
     coolTexture.texUnit(shaderProgram, "ourTexture", 0);
-    shaderProgram.setInt("shadowMap", 1);
-
+    
+    // Camera and light
+    Camera cam(Vector(0,0,3), Vector(0,0,0), 45.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT);
+    Light Light1(Vector(0,5,0), Vector(1,1,1));
 
 
     // --- RENDER LOOP ---
@@ -122,16 +121,16 @@ int main()
     {
         processInput(window,currentMode);
 
-        //ВЫЧИСЛЕНИЯ
+        // Calculations
 
-        // DeltaTime расчет
+        // DeltaTime 
         float currentFrame = (float)glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // Логика вращения
+        // Rotation
         if (isRotating) {
-            rotationAngle +=  deltaTime; // Скорость вращения
+            rotationAngle +=  deltaTime; 
         }
 
         // Cubes
@@ -140,26 +139,12 @@ int main()
 
         Cube2.SetRotation(0.0f, rotationAngle);
 
-        // 1. PROJECTION (Зум)
-        // Конвертируем FOV в радианы
-        float fovRad = fov * (3.14159f / 180.0f);
-        float aspect = (float)SCR_WIDTH / (float)SCR_HEIGHT;
-        Matrix4 projection = Matrix4::Perspective(fovRad, aspect, 0.01f, 500.0f);
-        
-        // 2. VIEW
-        Vector camPos(0.0f, 0.0f, 3.0f); 
-        Vector target(0.0f, 0.0f, 0.0f); 
-        Vector up(0.0f, 1.0f, 0.0f);     
-        Matrix4 view = Matrix4::lookAt(camPos, target, up);
+        // Camera and light
+        cam.FOV = fov;
+        Matrix4 lightSpaceMatrix = Light1.GetLightSpaceMatrix();
 
 
-        //матрицы для shade
-        Matrix4 ortho = Matrix4::ortho(-10.0f,10.0f,-10.0f,10.0f,0.01f,500.0f);
-        Matrix4 lightView = Matrix4::lookAt(lightPos,target,up);
-
-        Matrix4 lightSpaceMatrix = ortho * lightView ;
-
-        //первый проход
+        //FIRST PASS
 
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
@@ -170,7 +155,7 @@ int main()
         glDisable(GL_CULL_FACE);
         if (currentMode==RenderMode::Torus) {
             Matrix4 modelTorus = Matrix4::translate(0.0f, 0.0f, 0.0f);
-            modelTorus = modelTorus * Matrix4::rotateX(rotationAngle) * Matrix4::rotateY(rotationAngle*0.5f); // Добавим вращение тору
+            modelTorus = modelTorus * Matrix4::rotateX(rotationAngle) * Matrix4::rotateY(rotationAngle*0.5f); 
             shadowShader.setMat4("model", modelTorus);
             torus.Draw();
         }
@@ -180,7 +165,7 @@ int main()
         }  
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        //второй проход
+        // SECOND PASS
         glEnable(GL_CULL_FACE);
 
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
@@ -196,11 +181,13 @@ int main()
         
         
         // Передача в шейдер. 
-        shaderProgram.setVec3("lightPos", lightPos);
-        shaderProgram.setVec3("LightColour", lightColor);
-        shaderProgram.setMat4("projection", projection);
-        shaderProgram.setMat4("view", view);
+        shaderProgram.setVec3("lightPos", Light1.Position);
+        shaderProgram.setVec3("LightColour", Light1.Color);
+        shaderProgram.setMat4("projection", cam.GetProjectionMatrix());
+        shaderProgram.setMat4("view", cam.GetViewMatrix());
         shaderProgram.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+
         if (currentMode==RenderMode::Torus) {
             Matrix4 modelTorus = Matrix4::translate(0.0f, 0.0f, 0.0f);
             modelTorus = modelTorus * Matrix4::rotateX(rotationAngle) * Matrix4::rotateY(rotationAngle*0.5f);
@@ -265,10 +252,13 @@ void processInput(GLFWwindow *window, RenderMode& mode)
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
         mode = RenderMode::Torus;
 }
+
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
+
 
 void initializeglfw() {
     glfwInit();
@@ -276,6 +266,7 @@ void initializeglfw() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
+
 
 GLFWwindow* createwindow() {
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "My 3D Engine", NULL, NULL);
