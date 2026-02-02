@@ -2,7 +2,7 @@
 #define MATRIX_H
 
 #include <cmath>
-#include <C:\prog\C++\openGL\headers\Vector.h>
+#include "Vector.h"
 
 class Matrix4 {
 public:

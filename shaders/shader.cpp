@@ -1,4 +1,4 @@
-#include "C:\prog\C++\openGL\headers\shader.h"
+#include "..\headers\shader.h"
 
 std::string get_file_contents(const char *filename)
 {

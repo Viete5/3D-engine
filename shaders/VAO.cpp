@@ -1,4 +1,4 @@
-#include "C:\prog\C++\openGL\headers\VAO.h"
+#include "..\headers\VAO.h"
 
 
 VAO::VAO() {

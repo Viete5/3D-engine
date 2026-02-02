@@ -7,6 +7,7 @@
 #include "headers/VBO.h"
 #include "headers/EBO.h"
 #include "headers/Texture.h"
+#include "headers/Cube.h"
 
 
 #include "headers/Matrix.h"
@@ -16,103 +17,57 @@
 #include <iostream>
 #include <cmath>
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 800;   // Screen width
+const unsigned int SCR_HEIGHT = 600;   // Screen height
 
-// --- Глобальные переменные состояния ---
-Vector cubePos(0.0f, 0.0f, 0.0f); // Позиция куба
-float fov = 45.0f;                // Угол обзора (Zoom)
+// Global variables
+Vector cubePos(0.0f, 0.0f, 0.0f); // Cube pos
+float fov = 45.0f;                // Zoom
 
-// Состояние вращения
+// Rotation condition
 bool isRotating = true;
 float rotationAngle = 0.0f;
 bool spacePressedLastFrame = false;
 
-// Тайминг
+// Timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-//light
+// Light
 Vector lightPos(5.0f, 0.0f, 0.0f);   
 Vector lightColor(1.0f, 1.0f, 1.0f);
 
-// --- Состояние переключения фигуры ---
+// Change the figure 
 enum class RenderMode { Cube, Torus };
 RenderMode currentMode = RenderMode::Cube;
 
+// Functions
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window, RenderMode& mode);
+void initializeglfw();
+GLFWwindow* createwindow();
 
 int main()
 {
-    // 1. Инициализация GLFW
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // Initialize GLFW
+    initializeglfw();
 
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "My 3D Engine", NULL, NULL);
-    if (window == NULL) {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
+    // Create window
+    GLFWwindow* window = createwindow();
+    if (!window) return -1;
 
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
+    // Check glad
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
-
-
+    // Shaders
     Shader shaderProgram("C:/prog/C++/openGL/shaders/shader.vert", "C:/prog/C++/openGL/shaders/shader.frag");
     Shader shadowShader("C:/prog/C++/openGL/shadow/shadow.vert", "C:/prog/C++/openGL/shadow/shadow.frag");
 
-    // Вершины
-    float CubeVertices[] = {
-        // Передняя
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-        // Задняя
-        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f, 0.0f, -1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f, 0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 0.0f, -1.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f, 0.0f, -1.0f,
-        // верхняя
-        0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-         0.5f, 0.5f, -0.5f,  1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-         -0.5f,  0.5f, 0.5f,  0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-        // нижняя
-        0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f, -1.0f, 0.0f,
-         0.5f, -0.5f,  -0.5f,  1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
-        -0.5f,  -0.5f,  0.5f,  0.0f, 1.0f, 0.0f, -1.0f, 0.0f,
-        -0.5f,  -0.5f,  -0.5f,  0.0f, 0.0f, 0.0f, -1.0f, 0.0f,
-        // правая
-        0.5f, -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-         0.5f,  0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-        // левая
-        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-         -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-         -0.5f,  0.5f, 0.5f,  0.0f, 1.0f, -1.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
-    };
-
-    unsigned int CubeIndices[] = {
-        0, 1, 2,  2, 3, 0,
-        4, 7, 6,  6, 5, 4,
-        10, 8, 9,  9, 11, 10,
-        14, 13, 12,  14, 15, 13, 
-        16, 17, 18,  19, 18, 17,
-        20, 22, 23,  23, 21, 20
-    };
+    // Cube
+    Cube Cube1;
 
     //back-face culling
     glFrontFace(GL_CCW);
@@ -149,17 +104,6 @@ int main()
         std::cout<<"DEPTH BUFFER ERROR";
         return -1;
     }
-
-    VAO cubeVAO1;
-    cubeVAO1.Bind();
-    VBO cubeVBO1(CubeVertices, sizeof(CubeVertices));
-    EBO cubeEBO1(CubeIndices, sizeof(CubeIndices));
-    cubeVAO1.LinkAttrib(cubeVBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
-    cubeVAO1.LinkAttrib(cubeVBO1, 1, 2, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    cubeVAO1.LinkAttrib(cubeVBO1, 2, 3, GL_FLOAT, 8 * sizeof(float), (void*)(5 * sizeof(float)));
-    cubeVAO1.Unbind();
-    cubeVBO1.Unbind();
-    cubeEBO1.Unbind();
 
     Torus torus(1.0f, 0.4f, 50, 50);
 
@@ -241,8 +185,7 @@ int main()
             torus.Draw();
         }
         else {
-            cubeVAO1.Bind();
-            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+            Cube1.draw();
         }  
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -274,16 +217,13 @@ int main()
             torus.Draw();
         }
         else {
-            cubeVAO1.Bind();
-            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+            Cube1.draw();
         }    
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    cubeVAO1.Delete();
-    cubeVBO1.Delete();
-    cubeEBO1.Delete();
+
     shaderProgram.Delete();
     coolTexture.Delete();
     glfwTerminate();
@@ -333,4 +273,23 @@ void processInput(GLFWwindow *window, RenderMode& mode)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+void initializeglfw() {
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+}
+
+GLFWwindow* createwindow() {
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "My 3D Engine", NULL, NULL);
+    if (window == NULL) {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return nullptr;
+    }
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    return window;
 }

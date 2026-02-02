@@ -1,4 +1,4 @@
-#include "C:\prog\C++\openGL\headers\Vector.h"
+#include "..\headers\Vector.h"
 
 Vector::Vector(float x, float y,float z) {
     this->x = x;

@@ -1,5 +1,5 @@
-#include "C:\prog\C++\openGL\headers\Texture.h"
-#include <C:\prog\C++\openGL\vendor\include\stb\stb_image.h> // Предполагая, что stb_image находится здесь
+#include "..\headers\Texture.h"
+#include "..\vendor\include\stb\stb_image.h"
 #include <iostream>
 
 // ВАЖНО: Устанавливаем переворот при загрузке один раз

@@ -1,4 +1,4 @@
-#include "C:\prog\C++\openGL\headers\Matrix.h"
+#include "..\headers\Matrix.h"
 
 
 void swap(float &n1, float &n2) {

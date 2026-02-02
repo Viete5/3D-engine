@@ -1,11 +1,7 @@
-#include "C:\prog\C++\openGL\headers\Torus.h"
-
-#include <vector>
-
-const float pi = 3.1415926535897932384626433832795028841f;
-#include "C:\prog\C++\openGL\headers\Torus.h"
-#include <vector>
+#include "..\headers\Torus.h"
 #include <cmath> 
+
+const float pi = 3.1416f;
 
 
 Torus::Torus(float R, float r, int stacks, int slices) 

@@ -1,4 +1,4 @@
-#include "C:\prog\C++\openGL\headers\VBO.h"
+#include "..\headers\VBO.h"
 
 VBO::VBO(float *vertices, size_t size) {
     glGenBuffers(1, &ID);

@@ -1,5 +1,5 @@
 
-#include "C:\prog\C++\openGL\headers\EBO.h"
+#include "..\headers\EBO.h"
 EBO::EBO(unsigned int *indices, size_t size) {
     glGenBuffers(1, &ID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
