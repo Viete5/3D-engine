@@ -1,6 +1,7 @@
 #include "..\headers\Cube.h"
 
 
+// Settings of basic cube
 namespace {
   float vertices[] = {
     // Front
@@ -45,31 +46,71 @@ namespace {
 }
 
 
-Cube::Cube() 
+Cube::Cube(Vector position) 
     : cubeVBO(vertices,sizeof(vertices)),
-      cubeEBO(indices, sizeof(indices))     
-{             
+      cubeEBO(indices, sizeof(indices)),
+      pos(position)     
+{      
+  // Binding       
   cubeVAO.Bind();
   cubeEBO.Bind();
+
+  // Linking
+  // Position
   cubeVAO.LinkAttrib(cubeVBO, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+  // Texture
   cubeVAO.LinkAttrib(cubeVBO, 1, 2, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+  // Normals
   cubeVAO.LinkAttrib(cubeVBO, 2, 3, GL_FLOAT, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+  
+  // Unbinding
   cubeVAO.Unbind();
   cubeVBO.Unbind();
   cubeEBO.Unbind();
 }
 
-void Cube::draw() {
+
+void Cube::SetRotation(float x, float y) {
+  rotX = x;
+  rotY = y;
+}
+
+
+void Cube::draw(Shader& shader) {
+  // Matrix of transition
+  Matrix4 trans = Matrix4::translate(pos.getX(), pos.getY(), pos.getZ());
+  
+  // Matrix of rotation
+  Matrix4 rotationX = Matrix4::rotateX(rotX);
+  Matrix4 rotationY = Matrix4::rotateY(rotY);
+
+  // Model
+  Matrix4 model = trans * (rotationX * rotationY);
+
+  // Matrix of normals
+  Matrix4 normalMatrix = model.normMatrix();
+
+  // Shaders
+  shader.Activate();
+  GLint modelLoc = glGetUniformLocation(shader.ID, "model");
+  glUniformMatrix4fv(modelLoc, 1, GL_TRUE, &model.at(0,0));
+
+  GLint normLoc = glGetUniformLocation(shader.ID, "normalMatrix");
+  glUniformMatrix4fv(normLoc, 1, GL_TRUE, &normalMatrix.at(0,0));
+
+  // Draw
   cubeVAO.Bind();
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
   cubeVAO.Unbind();
 }
+
 
 void Cube::Delete() {
   cubeVAO.Delete();
   cubeEBO.Delete();
   cubeVBO.Delete();
 }
+
 
 Cube::~Cube() {
   Delete();

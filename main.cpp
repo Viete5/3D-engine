@@ -67,7 +67,8 @@ int main()
     Shader shadowShader("C:/prog/C++/openGL/shadow/shadow.vert", "C:/prog/C++/openGL/shadow/shadow.frag");
 
     // Cube
-    Cube Cube1;
+    Cube Cube1(Vector(0.0f,0.0f,0.0f));
+    Cube Cube2(Vector(0.0f,0.0f,0.0f));
 
     //back-face culling
     glFrontFace(GL_CCW);
@@ -134,11 +135,16 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        
         // Логика вращения
         if (isRotating) {
             rotationAngle +=  deltaTime; // Скорость вращения
         }
+
+        // Cubes
+        Cube1.setPosition(cubePos);
+        Cube1.SetRotation(rotationAngle, rotationAngle * 0.5f);
+
+        Cube2.SetRotation(0.0f, rotationAngle);
 
         // 1. PROJECTION (Зум)
         // Конвертируем FOV в радианы
@@ -151,17 +157,6 @@ int main()
         Vector target(0.0f, 0.0f, 0.0f); 
         Vector up(0.0f, 1.0f, 0.0f);     
         Matrix4 view = Matrix4::lookAt(camPos, target, up);
-
-        // 3. MODEL
-        Matrix4 transMat = Matrix4::translate(cubePos.getX(), cubePos.getY(), cubePos.getZ());
-        Matrix4 rotYMat = Matrix4::rotateY(rotationAngle*0.5f);
-        Matrix4 rotXMat = Matrix4::rotateX(rotationAngle); 
-
-        Matrix4 model = transMat * (rotYMat * rotXMat);
-
-
-        //матрица нормали  для расчета света
-        Matrix4 normalMatrix = model.normMatrix();
 
 
         //матрицы для shade
@@ -178,14 +173,17 @@ int main()
         glClear(GL_DEPTH_BUFFER_BIT);
         shadowShader.Activate();
         glUniformMatrix4fv(lightSpaceLoc, 1, GL_TRUE, &lightSpaceMatrix.at(0,0));
-        glUniformMatrix4fv(modelShadowLoc, 1, GL_TRUE, &model.at(0,0));
         
         glDisable(GL_CULL_FACE);
         if (currentMode==RenderMode::Torus) {
+            Matrix4 modelTorus = Matrix4::translate(0.0f, 0.0f, 0.0f);
+            modelTorus = modelTorus * Matrix4::rotateX(rotationAngle) * Matrix4::rotateY(rotationAngle*0.5f); // Добавим вращение тору
+            glUniformMatrix4fv(modelShadowLoc, 1, GL_TRUE, &modelTorus.at(0,0));
             torus.Draw();
         }
         else {
-            Cube1.draw();
+            Cube1.draw(shadowShader);
+            // Cube2.draw(shadowShader);
         }  
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -209,15 +207,20 @@ int main()
         glUniform3f(lightColorLoc, lightColor.getX(), lightColor.getY(), lightColor.getZ());
         glUniformMatrix4fv(projLoc, 1, GL_TRUE, &projection.at(0,0));
         glUniformMatrix4fv(viewLoc, 1, GL_TRUE, &view.at(0,0));
-        glUniformMatrix4fv(modelLoc, 1, GL_TRUE, &model.at(0,0));
-        glUniformMatrix4fv(normalMatrixLoc, 1, GL_TRUE, &normalMatrix.at(0,0));
         GLint lsLocMain = glGetUniformLocation(shaderProgram.ID, "lightSpaceMatrix");
         glUniformMatrix4fv(lsLocMain, 1, GL_TRUE, &lightSpaceMatrix.at(0,0));
         if (currentMode==RenderMode::Torus) {
+            Matrix4 modelTorus = Matrix4::translate(0.0f, 0.0f, 0.0f);
+            modelTorus = modelTorus * Matrix4::rotateX(rotationAngle) * Matrix4::rotateY(rotationAngle*0.5f);
+            Matrix4 normalMatrixTorus = modelTorus.normMatrix();
+
+            glUniformMatrix4fv(modelLoc, 1, GL_TRUE, &modelTorus.at(0,0));
+            glUniformMatrix4fv(normalMatrixLoc, 1, GL_TRUE, &normalMatrixTorus.at(0,0));
             torus.Draw();
         }
         else {
-            Cube1.draw();
+            Cube1.draw(shaderProgram);
+            // Cube2.draw(shaderProgram);  
         }    
         glfwSwapBuffers(window);
         glfwPollEvents();
