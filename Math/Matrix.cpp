@@ -49,9 +49,9 @@ Matrix4 Matrix4::operator*(const Matrix4 &other) const {
 //матрица перемещения
 Matrix4 Matrix4::translate(float x, float y, float z) {
     Matrix4 tr;
-    tr.at(3,0) = x;
-    tr.at(3,1) = y;
-    tr.at(3,2) = z;
+    tr.at(0,3) = x;
+    tr.at(1,3) = y;
+    tr.at(2,3) = z;
     return tr;
 }
 
@@ -105,7 +105,7 @@ Matrix4 Matrix4::Perspective(float fov, float aspectRatio, float near, float far
     Matrix4 pers;
     float T = std::tan(fov/2);
     float coifTranslate = (-far-near)/(far-near);
-    float coifScale = -2*far*near/(far-near);
+    float coifScale = ((-2)*far*near)/(far-near);
     pers.at(0,0) = 1/(T*aspectRatio);
     pers.at(1,1) = 1/T;
     pers.at(2,2) = coifTranslate;
