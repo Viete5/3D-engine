@@ -66,9 +66,11 @@ int main()
     Shader shaderProgram("C:/prog/C++/openGL/shaders/shader.vert", "C:/prog/C++/openGL/shaders/shader.frag");
     Shader shadowShader("C:/prog/C++/openGL/shadow/shadow.vert", "C:/prog/C++/openGL/shadow/shadow.frag");
 
-    // Cube
+    // Objects
     Cube Cube1(Vector(0.0f,0.0f,0.0f));
-    Cube Cube2(Vector(0.0f,0.0f,0.0f));
+    Cube Cube2(Vector(3.0f,1.0f,-10.6f));
+
+    Torus torus(1.0f, 0.4f, 50, 50);
 
     //back-face culling
     glFrontFace(GL_CCW);
@@ -106,22 +108,14 @@ int main()
         return -1;
     }
 
-    Torus torus(1.0f, 0.4f, 50, 50);
+    
 
     Texture coolTexture("C:/prog/C++/openGL/resource/white.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
     shaderProgram.Activate();
     coolTexture.texUnit(shaderProgram, "ourTexture", 0);
+    shaderProgram.setInt("shadowMap", 1);
 
-    GLint modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
-    GLint viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
-    GLint projLoc = glGetUniformLocation(shaderProgram.ID, "projection");
-    GLint normalMatrixLoc = glGetUniformLocation(shaderProgram.ID, "normalMatrix");
-    GLint lightPosLoc = glGetUniformLocation(shaderProgram.ID, "lightPos");
-    GLint lightColorLoc = glGetUniformLocation(shaderProgram.ID, "LightColour");
 
-    GLint depthMatrixID = glGetUniformLocation(shadowShader.ID, "depthMVP");
-    GLint lightSpaceLoc = glGetUniformLocation(shadowShader.ID, "lightSpaceMatrix");
-    GLint modelShadowLoc = glGetUniformLocation(shadowShader.ID, "model");
 
     // --- RENDER LOOP ---
     while (!glfwWindowShouldClose(window))
@@ -166,24 +160,23 @@ int main()
         Matrix4 lightSpaceMatrix = ortho * lightView ;
 
         //первый проход
-        // glCullFace(GL_FRONT);
 
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glClear(GL_DEPTH_BUFFER_BIT);
         shadowShader.Activate();
-        glUniformMatrix4fv(lightSpaceLoc, 1, GL_TRUE, &lightSpaceMatrix.at(0,0));
+        shadowShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         
         glDisable(GL_CULL_FACE);
         if (currentMode==RenderMode::Torus) {
             Matrix4 modelTorus = Matrix4::translate(0.0f, 0.0f, 0.0f);
             modelTorus = modelTorus * Matrix4::rotateX(rotationAngle) * Matrix4::rotateY(rotationAngle*0.5f); // Добавим вращение тору
-            glUniformMatrix4fv(modelShadowLoc, 1, GL_TRUE, &modelTorus.at(0,0));
+            shadowShader.setMat4("model", modelTorus);
             torus.Draw();
         }
         else {
             Cube1.draw(shadowShader);
-            // Cube2.draw(shadowShader);
+            Cube2.draw(shadowShader);
         }  
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -200,27 +193,26 @@ int main()
 
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthMap);
-        glUniform1i(glGetUniformLocation(shaderProgram.ID, "shadowMap"), 1);
+        
         
         // Передача в шейдер. 
-        glUniform3f(lightPosLoc, lightPos.getX(), lightPos.getY(), lightPos.getZ());
-        glUniform3f(lightColorLoc, lightColor.getX(), lightColor.getY(), lightColor.getZ());
-        glUniformMatrix4fv(projLoc, 1, GL_TRUE, &projection.at(0,0));
-        glUniformMatrix4fv(viewLoc, 1, GL_TRUE, &view.at(0,0));
-        GLint lsLocMain = glGetUniformLocation(shaderProgram.ID, "lightSpaceMatrix");
-        glUniformMatrix4fv(lsLocMain, 1, GL_TRUE, &lightSpaceMatrix.at(0,0));
+        shaderProgram.setVec3("lightPos", lightPos);
+        shaderProgram.setVec3("LightColour", lightColor);
+        shaderProgram.setMat4("projection", projection);
+        shaderProgram.setMat4("view", view);
+        shaderProgram.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         if (currentMode==RenderMode::Torus) {
             Matrix4 modelTorus = Matrix4::translate(0.0f, 0.0f, 0.0f);
             modelTorus = modelTorus * Matrix4::rotateX(rotationAngle) * Matrix4::rotateY(rotationAngle*0.5f);
             Matrix4 normalMatrixTorus = modelTorus.normMatrix();
 
-            glUniformMatrix4fv(modelLoc, 1, GL_TRUE, &modelTorus.at(0,0));
-            glUniformMatrix4fv(normalMatrixLoc, 1, GL_TRUE, &normalMatrixTorus.at(0,0));
+            shaderProgram.setMat4("model", modelTorus);
+            shaderProgram.setMat4("normalMatrix", normalMatrixTorus);
             torus.Draw();
         }
         else {
             Cube1.draw(shaderProgram);
-            // Cube2.draw(shaderProgram);  
+            Cube2.draw(shaderProgram);  
         }    
         glfwSwapBuffers(window);
         glfwPollEvents();
