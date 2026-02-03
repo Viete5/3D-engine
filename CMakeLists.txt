@@ -26,6 +26,7 @@ add_executable(${PROJECT_NAME}
     Math/Vector.cpp
     Math/Torus.cpp
     Math/Cube.cpp
+    Math/ShadowMap.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

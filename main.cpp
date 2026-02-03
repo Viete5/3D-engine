@@ -10,6 +10,7 @@
 #include "headers/Torus.h"
 #include "headers/Camera.h"
 #include "headers/Light.h"
+#include "headers/ShadowMap.h"
 
 #include <iostream>
 #include <cmath>
@@ -79,41 +80,24 @@ int main()
     //z-buffer
     glEnable(GL_DEPTH_TEST);
 
-    //SHADOW
-    unsigned int depthMapFBO;
-    glGenFramebuffers(1, &depthMapFBO);
-
-
+    // ShadowMap
     const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-    unsigned int depthMap;
-    glGenTextures(1, &depthMap);
-    glBindTexture(GL_TEXTURE_2D, depthMap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH,
-    SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    ShadowMap shadMap(SHADOW_WIDTH, SHADOW_HEIGHT);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // Light
+    Vector lightPos(0,0,0);
+    Vector lightCol(1,1,1);
+    Light Light1(lightPos, lightCol);
 
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE) {
-        std::cout<<"DEPTH BUFFER ERROR";
-        return -1;
-    }
-    
 
     // Texture
     Texture coolTexture("C:/prog/C++/openGL/resource/white.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
     coolTexture.texUnit(shaderProgram, "ourTexture", 0);
     
-    // Camera and light
-    Camera cam(Vector(0,0,3), Vector(0,0,0), 45.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT);
-    Light Light1(Vector(0,5,0), Vector(1,1,1));
+    // Camera
+    Vector camPos(0,0,3);
+    Vector target(0,0,0);
+    Camera cam(camPos, target, 45.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT);
 
 
     // --- RENDER LOOP ---
@@ -146,9 +130,8 @@ int main()
 
         //FIRST PASS
 
-        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-        glClear(GL_DEPTH_BUFFER_BIT);
+        shadMap.BeginRender();
+
         shadowShader.Activate();
         shadowShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         
@@ -163,7 +146,8 @@ int main()
             Cube1.draw(shadowShader);
             Cube2.draw(shadowShader);
         }  
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        
+        shadMap.EndRender();
 
         // SECOND PASS
         glEnable(GL_CULL_FACE);
@@ -176,8 +160,7 @@ int main()
         glActiveTexture(GL_TEXTURE0);
         coolTexture.Bind();
 
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, depthMap);
+        shadMap.Bind(GL_TEXTURE1);
         
         
         // Передача в шейдер. 
