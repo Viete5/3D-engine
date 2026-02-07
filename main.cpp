@@ -56,8 +56,8 @@ int main()
     }
 
     // Shaders
-    Shader shaderProgram("C:/prog/C++/openGL/shaders/shader.vert", "C:/prog/C++/openGL/shaders/shader.frag");
-    Shader shadowShader("C:/prog/C++/openGL/shadow/shadow.vert", "C:/prog/C++/openGL/shadow/shadow.frag");
+    Shader shaderProgram("../shaders/shader.vert", "../shaders/shader.frag");
+    Shader shadowShader("../shadow/shadow.vert", "../shadow/shadow.frag");
 
     shaderProgram.Activate();
     
@@ -90,8 +90,8 @@ int main()
 
 
     // Texture
-    Texture coolTexture("C:/prog/C++/openGL/resource/white.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
-    coolTexture.texUnit(shaderProgram, "ourTexture", 0);
+    // Texture WhiteTexture("C:/prog/C++/openGL/resource/white.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+    // coolTexture.texUnit(shaderProgram, "ourTexture", 0);
     
     // Camera
     Vector camPos(0,0,3);
@@ -163,7 +163,7 @@ int main()
 
         shaderProgram.Activate();
         glActiveTexture(GL_TEXTURE0);
-        coolTexture.Bind();
+        // coolTexture.Bind();
 
         shadMap.Bind(GL_TEXTURE1);
         

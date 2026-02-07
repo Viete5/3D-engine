@@ -6,6 +6,7 @@ in vec4 FragPosLightSpace;
 out vec4 FragColor;
 uniform vec3 lightPos;
 uniform vec3 LightColour;
+uniform vec4 ObjectColor;
 uniform sampler2D shadowMap;
 uniform sampler2D ourTexture;
 
@@ -30,17 +31,17 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir) {
 }
 void main()
 {
-    vec3 color = texture(ourTexture, TexCoord).rgb;
+    vec3 color = texture(ourTexture, TexCoord).rgb * ObjectColor.rgb;
     vec3 normal = normalize(norCoord);
     vec3 lightDir = normalize(lightPos - fragPos);
     
-    //  Ambient (Фоновое)
+    //  Ambient
     vec3 ambient = 0.2 * LightColour;
 
     float diff = max(dot(normal, lightDir), 0.0);
     vec3 diffuse = diff * LightColour;
 
-    //  Shadow (Тень)
+    //  Shadow
     float shadow = ShadowCalculation(FragPosLightSpace, normal, lightDir);
 
     vec3 lighting = (ambient + (1.0 - shadow) * diffuse) * color;
