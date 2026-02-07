@@ -76,7 +76,7 @@ void Cube::SetRotation(float x, float y) {
 }
 
 
-void Cube::draw(Shader& shader) {
+void Cube::draw(Shader& shader) const {
   // Matrix of transition
   Matrix4 trans = Matrix4::translate(pos.getX(), pos.getY(), pos.getZ());
   
@@ -92,11 +92,9 @@ void Cube::draw(Shader& shader) {
 
   // Shaders
   shader.Activate();
-  GLint modelLoc = glGetUniformLocation(shader.ID, "model");
-  glUniformMatrix4fv(modelLoc, 1, GL_TRUE, &model.at(0,0));
+  shader.setMat4("model", model);
 
-  GLint normLoc = glGetUniformLocation(shader.ID, "normalMatrix");
-  glUniformMatrix4fv(normLoc, 1, GL_TRUE, &normalMatrix.at(0,0));
+  shader.setMat4("normalMatrix", normalMatrix);
 
   // Draw
   cubeVAO.Bind();

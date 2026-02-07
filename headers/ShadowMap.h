@@ -14,8 +14,8 @@ public:
     ~ShadowMap();
 
    // Render of depthMap
-    void BeginRender();
-    void EndRender();
+    void BeginRender() const;
+    void EndRender() const;
 
     // Bind to texture
     void Bind(GLenum textureUnit) const;

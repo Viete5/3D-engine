@@ -8,8 +8,8 @@ class EBO {
         unsigned int ID;
         EBO(unsigned int *indeces, size_t size);
         EBO();
-        void Bind();
-        void Unbind();
+        void Bind() const;
+        void Unbind() const;
         void Delete();
 };
 

@@ -22,6 +22,11 @@ public:
         float fovRad = FOV * (3.14159f / 180.0f);
         return Matrix4::Perspective(fovRad, Aspect, 0.1f, 100.0f);
     }
+
+    // Метод для обновления соотношения сторон
+    void UpdateAspectRatio(float newAspectRatio) {
+        Aspect = newAspectRatio;
+    }
 };
 
 #endif //CAMERA_H

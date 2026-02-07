@@ -9,9 +9,9 @@ class VAO {
         unsigned int ID;
         VAO();
 
-        void LinkAttrib(VBO& VBO, unsigned int layout, unsigned int numComponents, unsigned int type, int stride, void* offset);
-        void Bind();
-        void Unbind();
+        void LinkAttrib(VBO& VBO, unsigned int layout, unsigned int numComponents, unsigned int type, int stride, void* offset) const;
+        void Bind() const;
+        void Unbind() const;
         void Delete();
 };
 

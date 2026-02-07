@@ -1,6 +1,6 @@
 #include "..\headers\shader.h"
 
-
+// Reading file
 std::string get_file_contents(const char *filename)
 {
   std::FILE *fp = std::fopen(filename, "rb");
@@ -65,46 +65,37 @@ Shader::Shader(const char *vertexFile, const char *fragmentFile) {
 
 }
 
-
-void Shader::SetUniform4f(const char* name, float v0, float v1, float v2, float v3) {
-    
+// Set Vec4 uniform
+void Shader::SetUniform4f(const char* name, float v0, float v1, float v2, float v3) const{
     glUseProgram(ID); 
-    
-    
     int location = glGetUniformLocation(ID, name);
-    
-    
     glUniform4f(location, v0, v1, v2, v3);
 }
 
-
-void Shader::SetUniform1i(const char* name, int value) {
-    glUseProgram(ID);
-    int location = glGetUniformLocation(ID, name);
-    if (location == -1) {
-        return;
-    }
-    glUniform1i(location, value);
-}
-
-
+// Set Mat4 uniform
 void Shader::setMat4(const std::string& name, const Matrix4& mat) const {
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_TRUE, &mat.at(0,0));
 }
 
+// Set Vec3 uniform
 void Shader::setVec3(const std::string& name, const Vector& vec) const {
     glUniform3f(glGetUniformLocation(ID, name.c_str()), vec.getX(), vec.getY(), vec.getZ());
 }
 
+//Set int uniform
 void Shader::setInt(const std::string& name, int value) const {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
 
-void Shader::Activate() {
+void Shader::Activate() const{
     glUseProgram(ID);
 }
 
 void Shader::Delete() {
     glDeleteProgram(ID);
+}
+
+Shader::~Shader() {
+    Delete();
 }

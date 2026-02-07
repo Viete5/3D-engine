@@ -14,7 +14,8 @@ public:
     Torus(float R, float r, int stacks, int slices);
     ~Torus();
 
-    void Draw();
+    void Draw() const;
+    void Delete();
     int getIndexCount() const {return indexCount;}
 
 private:

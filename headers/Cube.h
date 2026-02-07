@@ -11,7 +11,7 @@
 class Cube {
 public:
     Cube(Vector position); // Create cube with the coordinates of centre
-    void draw(Shader& shader); 
+    void draw(Shader& shader) const; 
     void Delete();
     void setPosition(Vector newPos) { pos = newPos; } // Change the position of cube
     void SetRotation(float x, float y); // Rotate cube

@@ -1,7 +1,7 @@
 #include "..\headers\ShadowMap.h"
 #include "..\headers\Light.h"
 
-// Конструктор
+
 ShadowMap::ShadowMap(unsigned int width, unsigned int height) : width(width), height(height) {
     // Создаем Framebuffer Object (FBO)
     glGenFramebuffers(1, &FBO);
@@ -36,14 +36,14 @@ ShadowMap::~ShadowMap() {
 }
 
 // Начало рендеринга карты глубины
-void ShadowMap::BeginRender() {
+void ShadowMap::BeginRender() const{
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
     glViewport(0, 0, width, height);
     glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 // Окончание рендеринга карты глубины
-void ShadowMap::EndRender() {
+void ShadowMap::EndRender() const{
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

@@ -9,8 +9,8 @@ class VBO {
         VBO(float *vertices, size_t size);
         VBO();
 
-        void Bind();
-        void Unbind();
+        void Bind() const;
+        void Unbind() const;
         void Delete();
 };
 

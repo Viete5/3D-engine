@@ -8,11 +8,11 @@ uniform vec3 lightPos;
 uniform vec3 LightColour;
 uniform sampler2D shadowMap;
 uniform sampler2D ourTexture;
-float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
-{
+
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir) {
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     
-    // 2. Перевод из [-1, 1] в [0, 1]
+
     projCoords = projCoords * 0.5 + 0.5;
 
     if(projCoords.z > 1.0)

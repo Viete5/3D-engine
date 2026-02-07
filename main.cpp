@@ -12,15 +12,13 @@
 #include "headers/Light.h"
 #include "headers/ShadowMap.h"
 
-#include <iostream>
-#include <cmath>
-
-const unsigned int SCR_WIDTH = 800;   // Screen width
-const unsigned int SCR_HEIGHT = 600;   // Screen height
 
 // Global variables
-Vector cubePos(0.0f, 0.0f, 0.0f); // Cube pos
-float fov = 45.0f;                // Zoom
+Vector cubePos(0.0f, 0.0f, 0.0f); 
+float fov = 45.0f;       
+
+const unsigned int SCR_WIDTH = 800;   
+const unsigned int SCR_HEIGHT = 600; 
 
 // Rotation condition
 bool isRotating = true;
@@ -62,7 +60,7 @@ int main()
     Shader shadowShader("C:/prog/C++/openGL/shadow/shadow.vert", "C:/prog/C++/openGL/shadow/shadow.frag");
 
     shaderProgram.Activate();
-    shaderProgram.setInt("shadowMap", 1);
+    
 
     // Objects
     Cube Cube1(Vector(0.0f,0.0f,0.0f));
@@ -83,6 +81,7 @@ int main()
     // ShadowMap
     const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
     ShadowMap shadMap(SHADOW_WIDTH, SHADOW_HEIGHT);
+    shaderProgram.setInt("shadowMap", 1);
 
     // Light
     Vector lightPos(0,0,0);
@@ -98,6 +97,9 @@ int main()
     Vector camPos(0,0,3);
     Vector target(0,0,0);
     Camera cam(camPos, target, 45.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT);
+
+
+    glfwSetWindowUserPointer(window, &cam);
 
 
     // --- RENDER LOOP ---
@@ -152,7 +154,10 @@ int main()
         // SECOND PASS
         glEnable(GL_CULL_FACE);
 
-        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+        glViewport(0, 0, width, height);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -189,8 +194,6 @@ int main()
     }
 
 
-    shaderProgram.Delete();
-    coolTexture.Delete();
     glfwTerminate();
     return 0;
 }
@@ -220,8 +223,8 @@ void processInput(GLFWwindow *window, RenderMode& mode)
         fov += 40.0f * deltaTime;
 
     // Ограничения зума
-    if (fov < 1.0f) fov = 1.0f;
-    if (fov > 90.0f) fov = 90.0f;
+    if (fov < 0.5f) fov = 0.5f;
+    if (fov > 110.0f) fov = 110.0f;
 
     // Вращение (Space) - переключатель
     bool spacePressed = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
@@ -239,6 +242,14 @@ void processInput(GLFWwindow *window, RenderMode& mode)
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
+    // Обновляем матрицу проекции камеры при изменении размера окна
+    Camera* cam = static_cast<Camera*>(glfwGetWindowUserPointer(window));
+    if (cam) {
+        float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+        cam->UpdateAspectRatio(aspectRatio);
+    }
+
+    // Обновляем область вывода
     glViewport(0, 0, width, height);
 }
 
@@ -249,7 +260,6 @@ void initializeglfw() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
-
 
 GLFWwindow* createwindow() {
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "My 3D Engine", NULL, NULL);

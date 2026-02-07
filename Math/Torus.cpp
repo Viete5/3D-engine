@@ -104,14 +104,19 @@ void Torus::generateGeometry() {
     }
 }
 
-void Torus::Draw()  {
+void Torus::Draw()  const{
     torusVAO.Bind();
     glDrawElements(GL_TRIANGLES,indexCount,GL_UNSIGNED_INT,0);
     torusVAO.Unbind();
 }
 
-Torus::~Torus() {
+void Torus::Delete() {
     torusVAO.Delete();
     torusVBO.Delete();
     torusEBO.Delete();
 }
+
+
+Torus::~Torus() {
+    Delete();
+} 

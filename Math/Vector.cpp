@@ -28,12 +28,12 @@ void Vector::setZ(float z) {
     this->z = z;
 }
 
-//расстояние между точками
+// Distance between dots
 float Vector::dist(float x1,float y1, float z1) const{
     return sqrt((x-x1)*(x-x1)+(y-y1)*(y-y1)+(z-z1)*(z-z1));
 }
 
-//vector sum
+// Vector sum
 Vector Vector::operator+(const Vector &rv) const{
     Vector tmp(rv.getX()+x,rv.getY()+y,rv.getZ()+z);
     return tmp;

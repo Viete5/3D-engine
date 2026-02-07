@@ -16,11 +16,11 @@ class Shader
     public:
     // the program ID
     unsigned int ID;
-    void SetUniform4f(const char* , float, float, float , float );
-    void SetUniform1i(const char*, int);
+    void SetUniform4f(const char* , float, float, float , float ) const;
 
     // constructor reads and builds the shader
     Shader(const char* , const char*);
+    ~Shader();
 
     // Uniforms
     void setMat4(const std::string& name, const Matrix4& mat) const;
@@ -28,7 +28,7 @@ class Shader
     void setInt(const std::string& name, int value) const;
 
     // use/activate the shader
-    void Activate();
+    void Activate() const;
     void Delete();
 };
 #endif //SHADER_H

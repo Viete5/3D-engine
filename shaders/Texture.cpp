@@ -2,16 +2,12 @@
 #include "..\vendor\include\stb\stb_image.h"
 #include <iostream>
 
-// ВАЖНО: Устанавливаем переворот при загрузке один раз
+
 void setTextureFlip() {
     stbi_set_flip_vertically_on_load(true);
 }
 
-Texture::Texture(const char* imagePath, GLenum texType, GLenum slot, GLenum format, GLenum pixelType)
-{
-    // Вызываем setTextureFlip() один раз, если не уверены, что вызвали ее в main
-    // setTextureFlip(); 
-    
+Texture::Texture(const char* imagePath, GLenum texType, GLenum slot, GLenum format, GLenum pixelType) {
     type = texType;
     int widthImg, heightImg, numColCh;
     
@@ -22,11 +18,12 @@ Texture::Texture(const char* imagePath, GLenum texType, GLenum slot, GLenum form
         // Динамическое определение формата (RGB или RGBA)
         GLenum externalFormat = (numColCh == 4) ? GL_RGBA : GL_RGB;
         
+        // Создание текстуры
         glGenTextures(1, &ID);
-        glActiveTexture(slot); // Активируем нужный слот
+        glActiveTexture(slot); 
         glBindTexture(texType, ID);
 
-        // Установка параметров (вы можете сделать их настраиваемыми)
+        // Настройка текстуры
         glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -46,24 +43,24 @@ Texture::Texture(const char* imagePath, GLenum texType, GLenum slot, GLenum form
     glBindTexture(texType, 0);
 }
 
-void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)
-{
+void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit) const{
     // Активируем шейдер и устанавливаем Uniform для сэмплера
     shader.Activate();
-    shader.SetUniform1i(uniform, unit); 
+    shader.setInt(uniform, unit); 
 }
 
-void Texture::Bind()
-{
+void Texture::Bind() const{
     glBindTexture(type, ID);
 }
 
-void Texture::Unbind()
-{
+void Texture::Unbind() const{
     glBindTexture(type, 0);
 }
 
-void Texture::Delete()
-{
+void Texture::Delete() {
     glDeleteTextures(1, &ID);
+}
+
+Texture::~Texture() {
+    Delete();
 }
