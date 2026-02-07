@@ -1,5 +1,6 @@
 #include "..\headers\shader.h"
 
+
 // Reading file
 std::string get_file_contents(const char *filename)
 {
@@ -87,6 +88,10 @@ void Shader::setInt(const std::string& name, int value) const {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
+// Set Vec3 uniform
+void Shader::setVec4(const std::string& name, const Vector4& vec) const {
+    glUniform4f(glGetUniformLocation(ID, name.c_str()), vec.getX(), vec.getY(), vec.getZ(), vec.getW());
+}
 
 void Shader::Activate() const{
     glUseProgram(ID);
