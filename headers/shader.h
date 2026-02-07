@@ -26,7 +26,7 @@ class Shader
     // Uniforms
     void setMat4(const std::string& name, const Matrix4& mat) const;
     void setVec3(const std::string& name, const Vector& vec) const;
-    void Shader::setVec4(const std::string& name, const Vector4& vec) const;
+    void setVec4(const std::string& name, const Vector4& vec) const;
     void setInt(const std::string& name, int value) const;
 
     // use/activate the shader
