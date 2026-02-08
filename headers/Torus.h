@@ -8,13 +8,14 @@
 #include "EBO.h"
 #include  "Vector.h"
 #include  "Matrix.h"
+#include "Object.h"
 
-class Torus {
+class Torus : public Object {
 public:
     Torus(float R, float r, int stacks, int slices);
     ~Torus();
 
-    void Draw() const;
+    // void Draw() const;
     void Delete();
     int getIndexCount() const {return indexCount;}
 

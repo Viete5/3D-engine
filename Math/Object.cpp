@@ -21,7 +21,7 @@ void Object::updateMatrix() {
     NormalMatrix = Model.normMatrix();
 }
 
-void Object::setPosition(Vector newPos) {
+void Object::SetPosition(Vector newPos) {
     Position = newPos;
     ModelFlag = true;
 }
@@ -44,6 +44,7 @@ void Object::Draw(Shader& shader) {
         ModelFlag = false;
     }
 
+    shader.Activate();
     shader.setMat4("model", Model);
     shader.setMat4("normalMatrix", NormalMatrix);
     shader.setVec4("ObjectColor", BaseColor);
@@ -66,3 +67,5 @@ void Object::Draw(Shader& shader) {
     glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
+
+Object::~Object() {}

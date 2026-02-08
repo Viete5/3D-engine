@@ -11,11 +11,11 @@
 #include "headers/Camera.h"
 #include "headers/Light.h"
 #include "headers/ShadowMap.h"
+#include "headers/Object.h"
 
 
 // Global variables
-Vector cubePos(0.0f, 0.0f, 0.0f); 
-float fov = 45.0f;       
+float fov = 60.0f;       
 
 const unsigned int SCR_WIDTH = 800;   
 const unsigned int SCR_HEIGHT = 600; 
@@ -30,15 +30,12 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 
-// Change the figure 
-enum class RenderMode { Cube, Torus };
-RenderMode currentMode = RenderMode::Cube;
-
 // Functions
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window, RenderMode& mode);
+void processInput(GLFWwindow *window);
 void initializeglfw();
 GLFWwindow* createwindow();
+
 
 int main()
 {
@@ -63,10 +60,35 @@ int main()
     
 
     // Objects
-    Cube Cube1(Vector(0.0f,0.0f,0.0f));
-    Cube Cube2(Vector(3.0f,1.0f,-10.6f));
+    Cube Cube1;
+    Cube Cube2;
+    Cube Cube3;
+
+    Cube1.SetPosition(Vector(-0.5f,1.0f,-1.5f));
+    Cube2.SetPosition(Vector(1.5f,2.0f,-5.0f));
+    Cube3.SetPosition(Vector(2.0f,0.0f,0.0f));
+    
+    Cube1.SetRotation(Vector(0.5f, 1.0f, 2.0f));
+    Cube3.SetRotation(Vector(0.0f,2.0f,4.0f));
+
+    Cube2.SetBaseColor(Vector4(0.2f,0.66f,0.19f,1.0f));
+    
+    Cube2.SetScale(Vector(0.5f,0.5f,0.5f));
+    Cube1.SetScale(Vector(0.25f,0.25f,0.25f));
+
+    Texture Texture1("C:/prog/C++/openGL/resource/cat.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+    Texture Texture2("C:/prog/C++/openGL/resource/hippo.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+    Texture Texture3("C:/prog/C++/openGL/resource/damn.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+
+    Cube1.SetObjTex(&Texture1);
+    Cube2.SetObjTex(&Texture2);
+    Cube3.SetObjTex(&Texture3);
 
     Torus torus(1.0f, 0.4f, 50, 50);
+
+    torus.SetPosition(Vector(-1.0f,-1.0f,-1.0f));
+    torus.SetScale(Vector(0.5f,0.5f,0.5f));
+    torus.SetBaseColor(Vector4(1.0f,0.2f,0.1f,1.0f));
 
 
     //back-face culling
@@ -88,10 +110,6 @@ int main()
     Vector lightCol(1,1,1);
     Light Light1(lightPos, lightCol);
 
-
-    // Texture
-    // Texture WhiteTexture("C:/prog/C++/openGL/resource/white.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
-    // coolTexture.texUnit(shaderProgram, "ourTexture", 0);
     
     // Camera
     Vector camPos(0,0,3);
@@ -105,7 +123,7 @@ int main()
     // --- RENDER LOOP ---
     while (!glfwWindowShouldClose(window))
     {
-        processInput(window,currentMode);
+        processInput(window);
 
         // Calculations
 
@@ -120,10 +138,11 @@ int main()
         }
 
         // Cubes
-        Cube1.setPosition(cubePos);
-        Cube1.SetRotation(rotationAngle, rotationAngle * 0.5f);
+        Cube1.SetRotation(Vector(rotationAngle, rotationAngle * 0.5f, rotationAngle));
 
-        Cube2.SetRotation(0.0f, rotationAngle);
+        Cube2.SetRotation(Vector(0.0f, rotationAngle,0.0f));
+
+        torus.SetRotation(Vector(rotationAngle, rotationAngle * 0.5f, 0.0f));
 
         // Camera and light
         cam.FOV = fov;
@@ -138,17 +157,14 @@ int main()
         shadowShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         
         glDisable(GL_CULL_FACE);
-        if (currentMode==RenderMode::Torus) {
-            Matrix4 modelTorus = Matrix4::translate(0.0f, 0.0f, 0.0f);
-            modelTorus = modelTorus * Matrix4::rotateX(rotationAngle) * Matrix4::rotateY(rotationAngle*0.5f); 
-            shadowShader.setMat4("model", modelTorus);
-            torus.Draw();
-        }
-        else {
-            Cube1.draw(shadowShader);
-            Cube2.draw(shadowShader);
-        }  
-        
+
+        torus.Draw(shadowShader);
+        Cube1.Draw(shadowShader);
+        Cube2.Draw(shadowShader);
+        Cube3.Draw(shadowShader);
+
+
+
         shadMap.EndRender();
 
         // SECOND PASS
@@ -163,7 +179,7 @@ int main()
 
         shaderProgram.Activate();
         glActiveTexture(GL_TEXTURE0);
-        // coolTexture.Bind();
+
 
         shadMap.Bind(GL_TEXTURE1);
         
@@ -175,20 +191,13 @@ int main()
         shaderProgram.setMat4("view", cam.GetViewMatrix());
         shaderProgram.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
+        glActiveTexture(GL_TEXTURE0);
+        torus.Draw(shaderProgram);
+        Cube1.Draw(shaderProgram);
+        Cube2.Draw(shaderProgram);
+        Cube3.Draw(shaderProgram); 
 
-        if (currentMode==RenderMode::Torus) {
-            Matrix4 modelTorus = Matrix4::translate(0.0f, 0.0f, 0.0f);
-            modelTorus = modelTorus * Matrix4::rotateX(rotationAngle) * Matrix4::rotateY(rotationAngle*0.5f);
-            Matrix4 normalMatrixTorus = modelTorus.normMatrix();
 
-            shaderProgram.setMat4("model", modelTorus);
-            shaderProgram.setMat4("normalMatrix", normalMatrixTorus);
-            torus.Draw();
-        }
-        else {
-            Cube1.draw(shaderProgram);
-            Cube2.draw(shaderProgram);  
-        }    
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -198,7 +207,7 @@ int main()
     return 0;
 }
 
-void processInput(GLFWwindow *window, RenderMode& mode)
+void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -206,14 +215,14 @@ void processInput(GLFWwindow *window, RenderMode& mode)
     float speed = 2.5f * deltaTime;
 
     //движение стрелки
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        cubePos.setY(cubePos.getY()+speed);
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        cubePos.setY(cubePos.getY()-speed);
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        cubePos.setX(cubePos.getX()-speed);
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        cubePos.setX(cubePos.getX()+speed);
+    // if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    //     cubePos.setY(cubePos.getY()+speed);
+    // if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    //     cubePos.setY(cubePos.getY()-speed);
+    // if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    //     cubePos.setX(cubePos.getX()-speed);
+    // if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    //     cubePos.setX(cubePos.getX()+speed);
 
 
     // Зум (Q / E)
@@ -227,16 +236,11 @@ void processInput(GLFWwindow *window, RenderMode& mode)
     if (fov > 110.0f) fov = 110.0f;
 
     // Вращение (Space) - переключатель
-    bool spacePressed = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
-    if (spacePressed && !spacePressedLastFrame) {
-        isRotating = !isRotating;
-    }
-    spacePressedLastFrame = spacePressed;
-    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
-        mode = RenderMode::Cube;
-        
-    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
-        mode = RenderMode::Torus;
+    // bool spacePressed = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+    // if (spacePressed && !spacePressedLastFrame) {
+    //     isRotating = !isRotating;
+    // }
+    // spacePressedLastFrame = spacePressed;
 }
 
 

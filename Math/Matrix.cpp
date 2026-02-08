@@ -102,7 +102,7 @@ Matrix4 Matrix4::scale(float x, float y, float z) {
 
 //матрица, преобразующая view коорды в камерные
 Matrix4 Matrix4::Perspective(float fov, float aspectRatio, float near, float far) {
-    Matrix4 pers;
+    Matrix4 pers(0.0f);
     float T = std::tan(fov/2);
     float coifTranslate = (-far-near)/(far-near);
     float coifScale = ((-2)*far*near)/(far-near);

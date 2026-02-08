@@ -15,10 +15,10 @@ namespace {
         0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 0.0f, -1.0f,
         -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f, 0.0f, -1.0f,
         // Up
-        0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f,  1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f, 0.5f,  0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f,  1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f, 0.5f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
         // Down
         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f, -1.0f, 0.0f,
         0.5f, -0.5f,  -0.5f,  1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
@@ -38,7 +38,7 @@ namespace {
   unsigned int indices[] = {
         0, 1, 2,  2, 3, 0,
         4, 7, 6,  6, 5, 4,
-        10, 8, 9,  9, 11, 10,
+        8, 9, 10,  9, 11, 10,
         14, 13, 12,  14, 15, 13, 
         16, 17, 18,  19, 18, 17,
         20, 22, 23,  23, 21, 20
@@ -46,10 +46,10 @@ namespace {
 }
 
 
-Cube::Cube(Vector position) 
+Cube::Cube() 
     : cubeVBO(vertices,sizeof(vertices)),
       cubeEBO(indices, sizeof(indices)),
-      pos(position)     
+      Object(0,36)
 {      
   // Binding       
   cubeVAO.Bind();
@@ -63,6 +63,8 @@ Cube::Cube(Vector position)
   // Normals
   cubeVAO.LinkAttrib(cubeVBO, 2, 3, GL_FLOAT, 8 * sizeof(float), (void*)(5 * sizeof(float)));
   
+  ObjVAO_ID = cubeVAO.ID;
+
   // Unbinding
   cubeVAO.Unbind();
   cubeVBO.Unbind();
@@ -70,37 +72,37 @@ Cube::Cube(Vector position)
 }
 
 
-void Cube::SetRotation(float x, float y) {
-  rotX = x;
-  rotY = y;
-}
+// void Cube::SetRotation(float x, float y) {
+//   rotX = x;
+//   rotY = y;
+// }
 
 
-void Cube::draw(Shader& shader) const {
-  // Matrix of transition
-  Matrix4 trans = Matrix4::translate(pos.getX(), pos.getY(), pos.getZ());
+// void Cube::draw(Shader& shader) const {
+//   // Matrix of transition
+//   Matrix4 trans = Matrix4::translate(pos.getX(), pos.getY(), pos.getZ());
   
-  // Matrix of rotation
-  Matrix4 rotationX = Matrix4::rotateX(rotX);
-  Matrix4 rotationY = Matrix4::rotateY(rotY);
+//   // Matrix of rotation
+//   Matrix4 rotationX = Matrix4::rotateX(rotX);
+//   Matrix4 rotationY = Matrix4::rotateY(rotY);
 
-  // Model
-  Matrix4 model = trans * (rotationX * rotationY);
+//   // Model
+//   Matrix4 model = trans * (rotationX * rotationY);
 
-  // Matrix of normals
-  Matrix4 normalMatrix = model.normMatrix();
+//   // Matrix of normals
+//   Matrix4 normalMatrix = model.normMatrix();
 
-  // Shaders
-  shader.Activate();
-  shader.setMat4("model", model);
+//   // Shaders
+//   shader.Activate();
+//   shader.setMat4("model", model);
 
-  shader.setMat4("normalMatrix", normalMatrix);
+//   shader.setMat4("normalMatrix", normalMatrix);
 
-  // Draw
-  cubeVAO.Bind();
-  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-  cubeVAO.Unbind();
-}
+//   // Draw
+//   cubeVAO.Bind();
+//   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+//   cubeVAO.Unbind();
+// }
 
 
 void Cube::Delete() {

@@ -10,7 +10,7 @@
 
 class Object {
 public:
-    Object(unsigned int  SubObjVBO_ID, unsigned int SubObjVAO_ID, unsigned int SubObjEBO_ID, unsigned int SubObjIndexCount) 
+    Object(unsigned int SubObjVAO_ID, unsigned int SubObjIndexCount) 
     : ObjVAO_ID(SubObjVAO_ID),
       Position(Vector(0.0f,0.0f,0.0f)),
       Rotation(Vector(0.0f,0.0f,0.0f)),
@@ -23,7 +23,7 @@ public:
 
     void Draw(Shader& shader);
 
-    void setPosition(Vector newPos);
+    void SetPosition(Vector newPos);
     void SetRotation(Vector newRot);
     void SetScale(Vector newScl);
 
@@ -41,14 +41,14 @@ private:
     void updateMatrix();
     bool ModelFlag;
 
-    unsigned int ObjVAO_ID;
-
     Vector4 BaseColor;
     Texture* ObjTex;
 
-    unsigned int IndexCount;
-
     static Texture* WhiteTexture;
+
+protected:
+    unsigned int ObjVAO_ID;
+    unsigned int IndexCount;
 };
 
 

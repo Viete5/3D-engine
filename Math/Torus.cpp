@@ -12,7 +12,8 @@ Torus::Torus(float R, float r, int stacks, int slices)
       r(r), 
       stacks(stacks), 
       slices(slices), 
-      indexCount(0)
+      indexCount(0),
+      Object(0,0)
 {
 
     generateGeometry();
@@ -32,6 +33,9 @@ Torus::Torus(float R, float r, int stacks, int slices)
     torusVAO.LinkAttrib(torusVBO, 0, 3, GL_FLOAT, stride, (void*)0);
     torusVAO.LinkAttrib(torusVBO, 1, 2, GL_FLOAT, stride, (void*)(3 * sizeof(float)));
     torusVAO.LinkAttrib(torusVBO, 2, 3, GL_FLOAT, stride, (void*)(5 * sizeof(float)));
+
+    IndexCount = indexCount;
+    ObjVAO_ID = torusVAO.ID;
 
     torusVAO.Unbind();
     torusVBO.Unbind();
@@ -104,11 +108,11 @@ void Torus::generateGeometry() {
     }
 }
 
-void Torus::Draw()  const{
-    torusVAO.Bind();
-    glDrawElements(GL_TRIANGLES,indexCount,GL_UNSIGNED_INT,0);
-    torusVAO.Unbind();
-}
+// void Torus::Draw()  const{
+//     torusVAO.Bind();
+//     glDrawElements(GL_TRIANGLES,indexCount,GL_UNSIGNED_INT,0);
+//     torusVAO.Unbind();
+// }
 
 void Torus::Delete() {
     torusVAO.Delete();
