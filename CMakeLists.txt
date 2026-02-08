@@ -16,17 +16,18 @@ find_package(glfw3 CONFIG REQUIRED)
 
 add_executable(${PROJECT_NAME}
     main.cpp
+    additions/Camera.cpp
     shaders/Shader.cpp
     shaders/EBO.cpp
     shaders/VAO.cpp
     shaders/VBO.cpp
     shaders/stb.cpp
     shaders/Texture.cpp
+    shaders/ShadowMap.cpp
     Math/Matrix.cpp
     Math/Vector.cpp
     Math/Torus.cpp
     Math/Cube.cpp
-    Math/ShadowMap.cpp
     Math/Object.cpp
     Math/Vector4.cpp
 )

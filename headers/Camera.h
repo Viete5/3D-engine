@@ -3,30 +3,33 @@
 
 #include "Vector.h"
 #include "Matrix.h"
+#include <string>
 
 class Camera {
 public:
     Vector Position;
-    Vector Target;
+    Vector Front;
+    Vector Up;
     float FOV;
     float Aspect;
+    const float Sensitivity;
+    float Yaw;
+    float Pitch;
+    float Speed;
 
-    Camera(Vector pos, Vector target, float fov, float aspect) 
-        : Position(pos), Target(target), FOV(fov), Aspect(aspect) {}
+    Camera(Vector pos, Vector front, Vector up, float fov, float aspect);
 
-    Matrix4 GetViewMatrix() const {
-        return Matrix4::lookAt(Position, Target, Vector(0.0f, 1.0f, 0.0f));
-    }
+    Matrix4 GetViewMatrix() const;
 
-    Matrix4 GetProjectionMatrix() const {
-        float fovRad = FOV * (3.14159f / 180.0f);
-        return Matrix4::Perspective(fovRad, Aspect, 0.1f, 100.0f);
-    }
+    Matrix4 GetProjectionMatrix() const;
 
     // Метод для обновления соотношения сторон
-    void UpdateAspectRatio(float newAspectRatio) {
-        Aspect = newAspectRatio;
-    }
+    void UpdateAspectRatio(float newAspectRatio);
+
+    void UpdateAngle(float Xoffset, float Yoffset);
+    void UpdateFront();
+
+    void ProcessKeyboard(std::string direction, float deltaTime);
 };
 
 #endif //CAMERA_H
