@@ -3,6 +3,7 @@ build/
 .vs/
 .idea/
 CMakeUserPresets.json
-resource/obj/*.obj
-resource/photos/*.jpg
-resource/photos/*.png
+resource/obj/*
+!resource/obj/example_obj.obj
+resource/photos/*
+!resource/photos/example_photo.png
