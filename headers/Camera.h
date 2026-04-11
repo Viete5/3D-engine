@@ -3,7 +3,15 @@
 
 #include "Vector.h"
 #include "Matrix.h"
-#include <string>
+
+enum class CameraMovement {
+    Forward,
+    Backward,
+    Left,
+    Right,
+    Up,
+    Down
+};
 
 class Camera {
 public:
@@ -29,7 +37,7 @@ public:
     void UpdateAngle(float Xoffset, float Yoffset);
     void UpdateFront();
 
-    void ProcessKeyboard(std::string direction, float deltaTime);
+    void ProcessKeyboard(CameraMovement direction, float deltaTime);
 };
 
 #endif //CAMERA_H

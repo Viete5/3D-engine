@@ -275,12 +275,12 @@ void processInput(GLFWwindow *window)
 
     Camera* cam = static_cast<Camera*>(glfwGetWindowUserPointer(window));
     const float cameraSpeed = 0.05f; 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) cam->ProcessKeyboard("FORWARD", deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) cam->ProcessKeyboard("BACKWARD", deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) cam->ProcessKeyboard("LEFT", deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) cam->ProcessKeyboard("RIGHT", deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) cam->ProcessKeyboard("UP", deltaTime); 
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) cam->ProcessKeyboard("DOWN", deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) cam->ProcessKeyboard(CameraMovement::Forward, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) cam->ProcessKeyboard(CameraMovement::Backward, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) cam->ProcessKeyboard(CameraMovement::Left, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) cam->ProcessKeyboard(CameraMovement::Right, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) cam->ProcessKeyboard(CameraMovement::Up, deltaTime); 
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) cam->ProcessKeyboard(CameraMovement::Down, deltaTime);
 }
 
 

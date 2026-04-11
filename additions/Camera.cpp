@@ -52,12 +52,26 @@ void Camera::UpdateFront() {
     Front = newCamFront;
 }
 
-void Camera::ProcessKeyboard(std::string direction, float deltaTime) {
+void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime) {
     float velocity = Speed * deltaTime;
-    if (direction == "FORWARD")  Position = Position + Front * velocity;
-    if (direction == "BACKWARD") Position = Position - Front * velocity;
-    if (direction == "LEFT")     Position = Position - Front.crossprod(Up) * velocity;
-    if (direction == "RIGHT")    Position = Position + Front.crossprod(Up) * velocity;
-    if (direction == "UP")       Position.setY(Position.getY() + velocity);
-    if (direction == "DOWN")     Position.setY(Position.getY() - velocity);
+    switch (direction) {
+        case CameraMovement::Forward:
+            Position = Position + Front * velocity;
+            break;
+        case CameraMovement::Backward:
+            Position = Position - Front * velocity;
+            break;
+        case CameraMovement::Left:
+            Position = Position - Front.crossprod(Up) * velocity;
+            break;
+        case CameraMovement::Right:
+            Position = Position + Front.crossprod(Up) * velocity;
+            break;
+        case CameraMovement::Up:
+            Position.setY(Position.getY() + velocity);
+            break;
+        case CameraMovement::Down:
+            Position.setY(Position.getY() - velocity);
+            break;
+    }
 }
