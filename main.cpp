@@ -15,7 +15,6 @@
 #include "headers/Object.h"
 
 
-
 // Global variables
 float fov = 60.0f;       
 
@@ -91,9 +90,9 @@ int main()
     Cube1.SetScale(Vector(0.25f,0.25f,0.25f));
     Cube3.SetScale(Vector(2.0f,2.0f,1.0f));
 
-    Texture Texture1("C:/prog/C++/openGL/resource/cat.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
-    Texture Texture2("C:/prog/C++/openGL/resource/hippo.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
-    Texture Texture3("C:/prog/C++/openGL/resource/unluck.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+    Texture Texture1("../resource/photos/cat.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+    Texture Texture2("../resource/photos/hippo.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+    Texture Texture3("../resource/photos/unluck.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
 
     Cube1.SetObjTex(&Texture1);
     Cube2.SetObjTex(&Texture2);
@@ -103,7 +102,7 @@ int main()
 
     torus.SetPosition(Vector(-1.0f,-1.0f,-1.0f));
     torus.SetScale(Vector(0.5f,0.5f,0.5f));
-    torus.SetBaseColor(Vector4(1.0f,0.2f,0.1f,1.0f));
+    torus.SetBaseColor(Vector4(0.0f,0.2f,0.1f,1.0f));
 
 
     //back-face culling
@@ -182,7 +181,6 @@ int main()
         Cube1.Draw(shadowShader);
         Cube2.Draw(shadowShader);
         Cube3.Draw(shadowShader);
-
 
 
         shadMap.EndRender();

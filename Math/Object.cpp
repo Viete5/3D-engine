@@ -54,7 +54,7 @@ void Object::Draw(Shader& shader) {
 
     if (!currentTex) {
         if (!WhiteTexture) {
-            WhiteTexture = new Texture("../resource/white.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+            WhiteTexture = new Texture("../resource/photos/white.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
         }
         currentTex = WhiteTexture;
     }

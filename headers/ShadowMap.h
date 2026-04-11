@@ -20,7 +20,6 @@ public:
     // Bind to texture
     void Bind(GLenum textureUnit) const;
 
-    
 private:
     unsigned int FBO;          
     unsigned int depthMap;                           

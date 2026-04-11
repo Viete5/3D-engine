@@ -1,2 +1,8 @@
 build/
 .vscode/
+.vs/
+.idea/
+CMakeUserPresets.json
+resource/obj/*.obj
+resource/photos/*.jpg
+resource/photos/*.png

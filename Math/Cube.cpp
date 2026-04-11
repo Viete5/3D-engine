@@ -71,40 +71,6 @@ Cube::Cube()
   cubeEBO.Unbind();
 }
 
-
-// void Cube::SetRotation(float x, float y) {
-//   rotX = x;
-//   rotY = y;
-// }
-
-
-// void Cube::draw(Shader& shader) const {
-//   // Matrix of transition
-//   Matrix4 trans = Matrix4::translate(pos.getX(), pos.getY(), pos.getZ());
-  
-//   // Matrix of rotation
-//   Matrix4 rotationX = Matrix4::rotateX(rotX);
-//   Matrix4 rotationY = Matrix4::rotateY(rotY);
-
-//   // Model
-//   Matrix4 model = trans * (rotationX * rotationY);
-
-//   // Matrix of normals
-//   Matrix4 normalMatrix = model.normMatrix();
-
-//   // Shaders
-//   shader.Activate();
-//   shader.setMat4("model", model);
-
-//   shader.setMat4("normalMatrix", normalMatrix);
-
-//   // Draw
-//   cubeVAO.Bind();
-//   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-//   cubeVAO.Unbind();
-// }
-
-
 void Cube::Delete() {
   cubeVAO.Delete();
   cubeEBO.Delete();
