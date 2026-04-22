@@ -1,5 +1,7 @@
 #include "../include/math/vector4.hpp"
 
+namespace engine::math {
+
 Vector4::Vector4(float x, float y,float z, float w) {
     this->x = x;
     this->y = y;
@@ -68,6 +70,11 @@ float Vector4::dist_between_dots(const Vector4 &rv) const {
 
 Vector4 Vector4::normalize() const{
     float length = dist();
+    if (length <= 1e-6f) {
+        return Vector4();
+    }
     Vector4 temp(get_x()/length,get_y()/length, get_z()/length,get_w()/length);
     return temp;
 }
+
+} // namespace engine::math

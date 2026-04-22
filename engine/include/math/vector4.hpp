@@ -3,6 +3,8 @@
 
 #include <cmath>
 
+namespace engine::math {
+
 class Vector4 {
 public:
     Vector4(float,float,float, float);
@@ -29,8 +31,6 @@ private:
     float w;
 };
 
-
-
-
+} // namespace engine::math
 
 #endif //VECTOR4_H

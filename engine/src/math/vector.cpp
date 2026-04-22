@@ -1,5 +1,7 @@
 #include "../include/math/vector.hpp"
 
+namespace engine::math {
+
 Vector::Vector(float x, float y,float z) {
     this->x = x;
     this->y = y;
@@ -60,6 +62,9 @@ float Vector::dist_between_dots(const Vector &rv) const {
 
 Vector Vector::normalize() const{
     float length = dist();
+    if (length <= 1e-6f) {
+        return Vector();
+    }
     Vector temp(get_x()/length,get_y()/length, get_z()/length);
     return temp;
 }
@@ -71,3 +76,5 @@ Vector Vector::crossprod(const Vector& other) const {
     Vector temp(x_new,y_new,z_new);
     return temp;
 }
+
+} // namespace engine::math

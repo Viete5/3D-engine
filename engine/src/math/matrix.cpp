@@ -1,5 +1,13 @@
 #include "../include/math/matrix.hpp"
+#include "../include/math/vector.hpp"
 
+namespace engine::math {
+
+namespace {
+
+constexpr float zero_tolerance = 1e-6f;
+
+}
 
 void swap(float &n1, float &n2) {
     float temp = n1;
@@ -23,11 +31,15 @@ Matrix4::Matrix4(float n) {
     }
 }
 
-float& Matrix4::at(int line, int row){
+float& Matrix4::at(int line, int row) {
+    assert(line >= 0 && line < dim);
+    assert(row >= 0 && row < dim);
     return m[line*dim+row];
 }
 
 const float& Matrix4::at(int line, int row) const {
+    assert(line >= 0 && line < dim);
+    assert(row >= 0 && row < dim);
     return m[line*dim+row];
 }
 
@@ -102,6 +114,14 @@ Matrix4 Matrix4::get_scale(float x, float y, float z) {
 
 //матрица, преобразующая view коорды в камерные
 Matrix4 Matrix4::get_perspective(float fov, float aspectRatio, float near, float far) {
+    assert(aspectRatio != 0.0f);
+    assert(near > 0.0f);
+    assert(far > near);
+
+    if (aspectRatio == 0.0f || near <= 0.0f || far <= near) {
+        return Matrix4(0.0f);
+    }
+
     Matrix4 pers(0.0f);
     float T = std::tan(fov/2);
     float coifTranslate = (-far-near)/(far-near);
@@ -146,10 +166,8 @@ Matrix4 Matrix4::get_look_at(const Vector& position,const Vector& target,const V
 }
 
 
-Matrix4 Matrix4::get_trans() {
+Matrix4 Matrix4::get_trans() const {
     Matrix4 temp;
-    int lane;
-    int row;
     for (int lane=0;lane<dim;++lane) {
         for (int row=0;row<dim;++row) {
             temp.at(lane,row) = at(row,lane);
@@ -159,27 +177,34 @@ Matrix4 Matrix4::get_trans() {
 }
 
 
-int Matrix4::choice_leading(Matrix4 &trM, int row, int *min) {
+int Matrix4::choice_leading(int row, int &min, Matrix4* augmented) {
     int mxrow = row;
-    if (trM.at(row,row)==0) {
+    if (std::abs(at(row,row)) < zero_tolerance) {
         for (int i = row+1;i<dim;++i) {
-            mxrow = trM.at(i,row)==0?mxrow:i;
+            mxrow = std::abs(at(i,row)) < zero_tolerance ? mxrow : i;
         }
         if (mxrow==row) return 0;
     }
     else {
         for (int i = row+1;i<dim;++i) {
-            mxrow = abs(trM.at(mxrow,row))<abs(trM.at(i,row)) ? i : mxrow;
+            mxrow = std::abs(at(mxrow,row)) < std::abs(at(i,row)) ? i : mxrow;
         }
         if (mxrow == row) return 1;
     }
-    for (int i = 0;i<dim;++i) swap(trM.at(row,i), trM.at(mxrow,i));
-    *min+=1;
+
+    for (int i = 0; i < dim; ++i) {
+        swap(at(row,i), at(mxrow,i));
+        if (augmented) {
+            swap(augmented->at(row,i), augmented->at(mxrow,i));
+        }
+    }
+
+    min += 1;
     return 1;
 }
 
 
-Matrix4 Matrix4::get_trian_matrix(int &min) {
+Matrix4 Matrix4::get_trian_matrix(int &min) const {
     float coif;
     Matrix4 trM;
     for (int i = 0;i<(dim*dim);++i) {
@@ -187,7 +212,7 @@ Matrix4 Matrix4::get_trian_matrix(int &min) {
     }
 
     for (int i = 0;i<dim;++i) {
-        if (!choice_leading(trM,i, &min)){
+        if (!trM.choice_leading(i, min)){
             Matrix4 temp(0);
             return temp;
         }
@@ -202,7 +227,7 @@ Matrix4 Matrix4::get_trian_matrix(int &min) {
     return trM;
 }
 
-float Matrix4::det(){
+float Matrix4::det() const{
     float d = 1;
     int min=0;
     Matrix4 trM = get_trian_matrix(min);
@@ -213,48 +238,49 @@ float Matrix4::det(){
     return d;
 }
 
-float det3(float *m) {
-    return *m * (*(m+4) * *(m+8) - *(m+5) * *(m+7)) - *(m+1) * (*(m+3) * *(m+8) - *(m+5) * *(m+6)) + *(m+2) * (*(m+3) * *(m+7) - *(m+4) * *(m+6));
-}
 
+Matrix4 Matrix4::inversed() const {
+    Matrix4 augmented;
+    Matrix4 left(*this);
 
-Matrix4 Matrix4::reversed() {
+    for (int i = 0; i < dim; ++i) {
+        for (int j = 0; j < dim; ++j) {
+            augmented.at(i, j) = (i == j) ? 1.0f : 0.0f;
+        }
+    }
 
-    double d = det();
-    if (std::abs(d) < 1e-6) return Matrix4(0.0f);//error
-    
-    int c;
-    float *temp = new float[9];
-    Matrix4 rev;
-    for (int lane = 0;lane<dim;++lane) {
-        for (int row = 0;row<dim;++row) {
-            c = 0;
-            for (int laneMain = 0;laneMain<dim;++laneMain) {
-                for (int rowMain = 0;rowMain<dim;++rowMain) {
-                    if ((laneMain!=lane) && (rowMain != row)) {
-                        *(temp+c) = at(laneMain,rowMain);  
-                        ++c;
-                    }
+    for (int i = 0; i < dim; ++i) {
+        int leading_swaps = 0;
+        if (!left.choice_leading(i, leading_swaps, &augmented)) {
+            throw std::runtime_error("Matrix is singular (det = 0)");
+        }
+
+        float divisor = left.at(i, i);
+        if (std::abs(divisor) < zero_tolerance) {
+            throw std::runtime_error("Matrix is singular (det = 0)");
+        }
+        for (int j = 0; j < dim; ++j) {
+            left.at(i, j) /= divisor;
+            augmented.at(i, j) /= divisor;
+        }
+
+        for (int k = 0; k < dim; ++k) {
+            if (k != i) {
+                float factor = left.at(k, i);
+                for (int j = 0; j < dim; ++j) {
+                    left.at(k, j) -= factor * left.at(i, j);
+                    augmented.at(k, j) -= factor * augmented.at(i, j);
                 }
             }
-
-            rev.at(lane,row) = det3(temp)*std::pow((-1),row+lane);
-
         }
     }
-    delete []temp;
-    for (int lane=0;lane<dim;++lane) {
-        for (int row=0;row<dim;++row) {
-            rev.at(lane,row) /= d;
-        }
-    }
-    rev = rev.get_trans();
-    return rev;
+
+    return augmented;
 }
 
 Matrix4 Matrix4::get_norm_matrix() const{
     Matrix4 temp = *this;
-    temp = temp.reversed().get_trans();
+    temp = temp.inversed().get_trans();
     return temp;
 }
 
@@ -293,3 +319,5 @@ Matrix4 Matrix4::get_ortho(float left, float right, float bottom, float top, flo
 
     return result;
 };
+
+} // namespace engine::math
