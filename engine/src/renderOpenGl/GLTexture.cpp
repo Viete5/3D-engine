@@ -67,18 +67,17 @@ GLTexture::~GLTexture() {
     }
 }
 
-void GLTexture::tex_unit(GLShader& shader, const char* uniform, GLuint unit) const{
-    // Активируем шейдер и устанавливаем Uniform для сэмплера
-    shader.activate();
-    shader.set_int(uniform, unit); 
-}
-
 void GLTexture::bind() const{
     glBindTexture(type, id);
 }
 
 void GLTexture::unbind() const{
     glBindTexture(type, 0);
+}
+
+void GLTexture::bind_to_unit(GLenum slot) const {
+    glActiveTexture(slot);
+    glBindTexture(type, id);
 }
 
 } // namespace engine::render::opengl
