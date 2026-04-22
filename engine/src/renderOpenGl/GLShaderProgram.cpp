@@ -5,7 +5,7 @@
 
 #include <fstream>
 #include <sstream>
-#include <iostream>
+#include <stdexcept>
 #include <string>
 
 namespace engine::render::opengl {

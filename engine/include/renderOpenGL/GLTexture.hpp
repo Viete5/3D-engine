@@ -16,8 +16,7 @@ public:
     GLTexture& operator=(GLTexture&& other) noexcept;
     ~GLTexture();
 
-    void tex_unit(GLShader& shader, const char* uniform, GLuint unit) const;
-    
+    void bind_to_unit(GLenum slot) const;
     void bind() const;
     void unbind() const;
 private:
