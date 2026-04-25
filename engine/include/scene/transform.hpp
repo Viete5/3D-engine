@@ -1,5 +1,5 @@
-#ifndef SCENE_OBJECT_HPP
-#define SCENE_OBJECT_HPP
+#ifndef TRANSFORM_HPP
+#define TRANSFORM_HPP
 
 #include "../math/matrix.hpp"
 #include "../math/vector.hpp"
@@ -38,4 +38,4 @@ private:
 
 } // namespace engine::scene
 
-#endif // SCENE_OBJECT_HPP
+#endif // TRANSFORM_HPP
