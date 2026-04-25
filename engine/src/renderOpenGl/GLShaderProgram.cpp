@@ -128,6 +128,10 @@ void GLShader::set_int(const char* name, int value) const {
     glUniform1i(glGetUniformLocation(id, name), value);
 }
 
+void GLShader::set_float(const char* name, float value) const {
+    glUniform1f(glGetUniformLocation(id, name), value);
+}
+
 // Set Vec3 uniform
 void GLShader::set_vec4(const char* name, const engine::math::Vector4& vec) const {
     glUniform4f(glGetUniformLocation(id, name), vec.get_x(), vec.get_y(), vec.get_z(), vec.get_w());

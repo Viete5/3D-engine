@@ -30,4 +30,8 @@ void Shader::set_int(const char* name, int value) const {
     gl_shader.set_int(name, value);
 }
 
+void Shader::set_float(const char* name, float value) const {
+    gl_shader.set_float(name, value);
+}
+
 }  // namespace engine::render
