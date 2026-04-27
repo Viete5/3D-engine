@@ -51,7 +51,7 @@ private:
     engine::math::Vector up;
     float fov;
     float aspect;
-    const float sensitivity;
+    float sensitivity;
     float yaw;
     float pitch;
     float speed;

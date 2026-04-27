@@ -6,7 +6,17 @@
 #include "camera.hpp"
 #include "light.hpp"
 
+namespace engine::platform {
+class Input;
+}
+
 namespace engine::scene {
+
+struct SceneUpdateContext {
+    float delta_time;
+    float elapsed_time;
+    const engine::platform::Input& input;
+};
 
 class Scene {
 public:
@@ -15,7 +25,7 @@ public:
     Scene& operator=(const Scene& other) = delete;
     virtual ~Scene() = default;
 
-    virtual void update(float delta_time_value) = 0;
+    virtual void update(const SceneUpdateContext& context) = 0;
 
     std::vector<SceneObject>& get_objects();
     Camera& get_camera();

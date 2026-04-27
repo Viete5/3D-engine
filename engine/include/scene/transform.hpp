@@ -16,6 +16,7 @@ public:
     );
 
     engine::math::Matrix4 get_model_matrix() const;
+    engine::math::Matrix4 get_normal_matrix() const;
 
     engine::math::Vector get_position() const;
     engine::math::Vector get_rotation() const;

@@ -33,6 +33,10 @@ engine::math::Matrix4 Transform::get_model_matrix() const {
     return translate * rotate_z * rotate_y * rotate_x * scale;
 }
 
+engine::math::Matrix4 Transform::get_normal_matrix() const {
+    return get_model_matrix().get_norm_matrix();
+}
+
 engine::math::Vector Transform::get_position() const {
     return position;
 }
