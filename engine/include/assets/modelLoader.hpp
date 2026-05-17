@@ -17,7 +17,7 @@ struct ModelLoaderSettings {
 class ModelLoader final {
 public:
     ModelLoader() = default;
-    explicit ModelLoader(const ModelLoaderSettings& settings);
+    ModelLoader(const ModelLoaderSettings& settings);
 
     engine::render::Model load(
         const std::filesystem::path& model_path,

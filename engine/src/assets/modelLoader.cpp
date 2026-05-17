@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace engine::assets {
@@ -356,7 +357,7 @@ engine::render::Model ModelLoader::load(
     aiMatrix4x4 identity;
     process_node(model, *scene, *scene->mRootNode, identity, meshes, materials, default_material);
 
-    return model;
+    return std::move(model);
 }
 
 const ModelLoaderSettings& ModelLoader::get_settings() const {
