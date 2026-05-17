@@ -1,5 +1,6 @@
 #include "../include/core/application.hpp"
 #include "../include/core/log.hpp"
+#include "../include/core/paths.hpp"
 #include "../include/core/time.hpp"
 #include "../include/platform/input.hpp"
 #include "../include/platform/window.hpp"
@@ -21,6 +22,7 @@ Application::Application()
       renderer(),
       logger(),
       time(),
+      paths(),
       scene(nullptr) {
 }
 
@@ -28,6 +30,10 @@ Application::~Application() = default;
 
 void Application::set_scene(std::unique_ptr<engine::scene::Scene> new_scene) {
     scene = std::move(new_scene);
+}
+
+void Application::set_scene_factory(SceneFactory new_scene_factory) {
+    scene_factory = std::move(new_scene_factory);
 }
 
 int Application::run(const ApplicationConfig& config) {
@@ -38,6 +44,10 @@ int Application::run(const ApplicationConfig& config) {
             logger.critical(LogCategory::Core, "application initialization failed");
             shutdown();
             return -1;
+        }
+
+        if (!scene && scene_factory) {
+            scene = scene_factory(paths);
         }
 
         if (!scene) {
@@ -53,6 +63,7 @@ int Application::run(const ApplicationConfig& config) {
             input.begin_frame();
             window.poll_events();
             process_application_input();
+            scene->get_camera().update_aspect_ratio(window.get_aspect_ratio());
 
             const engine::scene::SceneUpdateContext context{
                 time.get_delta_time(),
@@ -81,6 +92,8 @@ int Application::run(const ApplicationConfig& config) {
 }
 
 bool Application::initialize(const ApplicationConfig& config) {
+    paths.set_assets_dir(config.assets_dir);
+
     if (!glfwInit()) {
         logger.critical(LogCategory::Platform, "failed to initialize GLFW");
         return false;
@@ -101,6 +114,7 @@ bool Application::initialize(const ApplicationConfig& config) {
     }
 
     input.attach(window.get_window());
+    window.set_cursor_disabled(true);
     return true;
 }
 
@@ -113,6 +127,12 @@ void Application::process_application_input() {
     if (input.is_key_down(engine::platform::Key::Escape)) {
         window.set_should_close(true);
     }
+
+    const bool f11_pressed = input.is_key_down(engine::platform::Key::F11);
+    if (f11_pressed && !f11_pressed_last_frame) {
+        window.toggle_fullscreen();
+    }
+    f11_pressed_last_frame = f11_pressed;
 }
 
 } // namespace engine::core
