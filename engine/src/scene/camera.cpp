@@ -29,6 +29,10 @@ void Camera::update_aspect_ratio(float new_aspect_ratio) {
     aspect = new_aspect_ratio;
 }
 
+void Camera::set_fov(float new_fov) {
+    fov = new_fov;
+}
+
 void Camera::update_angle(float x_offset, float y_offset) {
     x_offset *= sensitivity;
     y_offset *= sensitivity;
