@@ -4,16 +4,8 @@
 
 namespace engine::core {
 
-void Paths::set_executable_dir(const std::filesystem::path& new_executable_dir) {
-    executable_dir_path = std::filesystem::weakly_canonical(new_executable_dir);
-}
-
 void Paths::set_assets_dir(const std::filesystem::path& new_assets_dir) {
     assets_dir_path = std::filesystem::weakly_canonical(new_assets_dir);
-}
-
-const std::filesystem::path& Paths::get_executable_dir() const {
-    return executable_dir_path;
 }
 
 const std::filesystem::path& Paths::get_assets_dir() const {

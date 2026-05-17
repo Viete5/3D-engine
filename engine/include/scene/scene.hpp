@@ -20,6 +20,7 @@ struct SceneUpdateContext {
 
 class Scene {
 public:
+    Scene();
     Scene(const std::vector<SceneObject>& objects, const Camera& camera, const std::vector<Light>& lights);
     Scene(const Scene& other) = delete;
     Scene& operator=(const Scene& other) = delete;

@@ -21,8 +21,6 @@ public:
 
     Model(const Model& other) = delete;
     Model& operator=(const Model& other) = delete;
-    Model(Model&& other) noexcept = default;
-    Model& operator=(Model&& other) noexcept = default;
 
     Mesh& create_mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
     Material& create_material(Shader& shader);

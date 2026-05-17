@@ -29,6 +29,7 @@ public:
 
     // Метод для обновления соотношения сторон
     void update_aspect_ratio(float new_aspect_ratio);
+    void set_fov(float new_fov);
 
     void update_angle(float x_offset, float y_offset);
     void update_front();
