@@ -8,6 +8,7 @@ namespace engine::assets {
 class TextureLoader {
 public:
     TextureLoader(const char* image_path);
+    TextureLoader(const unsigned char* data, int size, const char* source_name);
     TextureLoader(const TextureLoader& other) = delete;
     TextureLoader& operator=(const TextureLoader& other) = delete;
     TextureLoader(TextureLoader&& other) noexcept;

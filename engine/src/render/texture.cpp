@@ -6,6 +6,9 @@ namespace engine::render {
 Texture::Texture(const char* image_path, GLenum tex_type, GLenum slot,  GLenum pixel_type) 
     : gl_texture(image_path, tex_type, slot, pixel_type) {}
 
+Texture::Texture(const unsigned char* data, int size, const char* debug_name, GLenum tex_type, GLenum slot, GLenum pixel_type)
+    : gl_texture(data, size, debug_name, tex_type, slot, pixel_type) {}
+
 void Texture::bind() const {
     gl_texture.bind();
 }

@@ -9,6 +9,11 @@ TextureLoader::TextureLoader(const char* image_path)
     bytes = stbi_load(image_path, &img_width, &img_height, &img_num_col_channel, 0);
 }
 
+TextureLoader::TextureLoader(const unsigned char* data, int size, const char* source_name)
+    : image_path(source_name ? source_name : "<memory>") {
+    bytes = stbi_load_from_memory(data, size, &img_width, &img_height, &img_num_col_channel, 0);
+}
+
 TextureLoader::TextureLoader(TextureLoader&& other) noexcept 
     : img_height(other.img_height),
       img_width(other.img_width),
@@ -52,7 +57,11 @@ TextureLoader::~TextureLoader() {
 }
 
 std::string TextureLoader::get_error_message() const {
-    return std::string("ERROR::TEXTURE::FAILED_TO_LOAD_IMAGE: ") + image_path + stbi_failure_reason();
+    const char* reason = stbi_failure_reason();
+    return std::string("ERROR::TEXTURE::FAILED_TO_LOAD_IMAGE: ") +
+           image_path +
+           " " +
+           (reason ? reason : "unknown reason");
 }
 
 } // namespace engine::assets

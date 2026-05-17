@@ -10,6 +10,7 @@ class GLTexture
 {
 public:
     GLTexture(const char* image_path, GLenum tex_type, GLenum slot,  GLenum pixel_type);
+    GLTexture(const unsigned char* data, int size, const char* debug_name, GLenum tex_type, GLenum slot, GLenum pixel_type);
     GLTexture(const GLTexture& other) = delete;
     GLTexture& operator=(const GLTexture& other) = delete;
     GLTexture(GLTexture&& other) noexcept;

@@ -1,7 +1,7 @@
 #ifndef TEXTURE_HPP
 #define TEXTURE_HPP
 
-#include "../include/renderOpenGL/GLTexture.hpp"
+#include "../renderOpenGL/GLTexture.hpp"
 
 namespace engine::render {
 
@@ -10,6 +10,7 @@ class Shader;
 class Texture {
 public:
     Texture(const char* image_path, GLenum tex_type, GLenum slot,  GLenum pixel_type);
+    Texture(const unsigned char* data, int size, const char* debug_name, GLenum tex_type, GLenum slot, GLenum pixel_type);
     Texture(const Texture& other) = delete;
     Texture& operator=(const Texture& other) = delete;
     Texture(Texture&& other) noexcept = default;
