@@ -1,90 +1,248 @@
-# Документация математического ядра (Custom 3D Engine Math)
+# Custom OpenGL Engine
 
-Представляю мой движок, написанный с нуля на С++ с использованием библиотек OpenGL, GLFW, GLAD, но без использования библиотек, облегчающих всякого рода математику. В проекте есть полный контроль над тремя классами:
+Учебный 3D-движок на C++17 и OpenGL. 
 
-1)  **Matrix4** (матрица 4х4)
-2)  **Vector** (вектор в пространстве)
-3)  **Torus** (задание тора)
+## Текущее Состояние
 
------
+На данный момент реализовано:
 
-## 1\. Класс Matrix4
+- Окно и OpenGL-контекст через GLFW/GLAD.
+- Главный цикл приложения: input, time update, scene update, render, swap buffers.
+- Обработка клавиатуры и мыши.
+- Свободная камера с управлением от первого лица.
+- Переключение fullscreen/windowed по `F11`.
+- Захват и скрытие курсора для свободного вращения камеры.
+- Автоматическое обновление viewport и aspect ratio при изменении размера окна.
+- Простая система логирования: `info`, `warning`, `error`, `critical`.
+- Система путей `Paths` для `assets/shaders`, `assets/textures`, `assets/models`, `assets/scenes`.
+- Математическое ядро: `Vector`, `Vector4`, `Matrix4`.
+- Сцена: `Scene`, `SceneObject`, `Transform`, `Camera`, `Light`.
+- Рендеринг `Mesh + Material + Shader`.
+- Lambert diffuse lighting с поддержкой нескольких источников света в шейдере.
+- OpenGL wrappers для VAO, VBO, EBO, Texture, ShaderProgram.
+- `TextureLoader` на базе `stb_image`.
+- `Model` как контейнер ресурсов модели.
+- `ModelLoader` на базе Assimp для загрузки `.obj`, `.gltf`, `.glb` и других форматов Assimp.
+- Импорт mesh, material, texture, node transform и object name из модели.
+- Поддержка внешних texture-файлов и embedded PNG/JPEG texture из `.glb`.
+- Логи статистики загрузки модели.
+- CMake-сборка `engine` как static library и `apps/sandbox` как executable.
+- Автоматическое копирование runtime DLL рядом с `sandbox.exe` для MinGW/Windows.
 
-| Функционал | Описание |
-| :--- | :--- |
-| **Хранение** | Матрица представлена массивом из 16 элементов, хранящимся в **строковом порядке (Row-Major)**. |
-| **Конструкторы** | `Matrix4()`: Единичная матрица.<br>`Matrix4(float)`: Диагональная матрица с указанным значением. |
-| **Доступ** | `float& at(int, int)`: Ссылка на элемент по строке/столбцу. |
-| **Операции** | `Matrix4 operator*(const Matrix4 &) const;`: Перемножение матриц.<br>`Matrix4 trans();`: Транспонирование матрицы.<br>`float det();`: Детерминант (метод Гаусса).<br>`Matrix4 reversed();`: Обращение матрицы.<br>`Matrix4 normMatrix() const;`: Матрица нормалей $(\text{Model}^{-1})^T$. |
-| **Преобразования** | `static Matrix4 translate/rotateX/Y/Z/scale(...)`: Создание матриц перемещения, вращения и масштабирования. |
-| **Проекции** | `static Matrix4 Perspective(...)`: Матрица перспективной проекции.<br>`static Matrix4 lookAt(...)`: Матрица вида (View Matrix).<br>`static Matrix4 ortho(...)`: Матрица ортогональной проекции (используется для теней). |
+## Основные Модули
 
-## 2\. Класс Vector
+### Core
 
-| Функционал | Описание |
-| :--- | :--- |
-| **Хранение** | Координаты $x, y, z$. |
-| **Конструкторы** | `Vector()`: (0,0,0).<br>`Vector(float,float,float)`: С указанными координатами. |
-| **Геттеры/Сеттеры** | `getX/Y/Z()`, `setX/Y/Z()`. |
-| **Длина** | `dist()`, `distBetweenDots()`. |
-| **Операции** | `operator+/-(const Vector&)`: Сложение/разница векторов.<br>`float operator*(const Vector&)`: **Скалярное произведение (Dot Product)**.<br>`Vector operator*(float)`: Умножение на скаляр.<br>`Vector normalize() const`: Нормализация вектора.<br>`Vector crossprod(const Vector&)`: **Векторное произведение (Cross Product)**. |
+`Application` управляет жизненным циклом программы:
 
------
+- инициализирует GLFW;
+- создает окно;
+- загружает GLAD;
+- подключает input;
+- создает сцену через `SceneFactory`;
+- запускает главный цикл;
+- обновляет `Time`;
+- передает input и delta time в сцену;
+- вызывает `Renderer`;
+- корректно завершает работу.
 
-# Интеграция математики и рендеринг
+`Logger` отвечает за вывод сообщений. Ошибки уровня `error` и `critical` пишутся в `std::cerr`, остальные сообщения в `std::cout`.
 
-Интеграция математики происходит в три этапа: создание матриц проекции/вида, создание модельной матрицы и передача данных в шейдеры.
+`Paths` хранит путь к папке `assets` и строит пути к ресурсам
 
-## 1\. Инициализация матриц проекции/вида
+`Time` отвечает за обработку времени
 
-На этом этапе задаются параметры "объектива" камеры и её положение в мире.
+
+### Platform
+
+`Window` является оберткой над `GLFWwindow`.
+
+Умеет:
+
+- создавать и уничтожать окно;
+- проверять закрытие окна;
+- делать `swap_buffers`;
+- делать `poll_events`;
+- переключать fullscreen/windowed;
+- захватывать курсор;
+- обновлять размер framebuffer и viewport.
+
+`Input` хранит состояние клавиш и mouse delta. GLFW cursor callback привязан через `glfwSetWindowUserPointer`.
+
+### Scene
+
+`Scene` хранит:
 
 ```cpp
-// 1) Матрица проекции (Projection)
-Matrix4 projection = Matrix4::Perspective(fovRad, aspect, 0.01f, 500.0f);
-
-// 2) Матрица вида (View)
-Matrix4 view = Matrix4::lookAt(camPos, target, up);
+std::vector<SceneObject> objects;
+Camera camera;
+std::vector<Light> lights;
 ```
 
-## 2\. Создание модельной матрицы
-
-Формируется модельная матрица, которая переводит каждую координату из локальной системы отсчета в мировую.
+`SceneObject` представляет объект в сцене:
 
 ```cpp
-// Комбинирование (Model = Translate * RotateY * RotateX)
-Matrix4 model = transMat * (rotYMat * rotXMat);
-
-// Генерация матрицы нормалей для корректного освещения
-Matrix4 normalMatrix = model.normMatrix();
+std::string name;
+Transform transform;
+Material* material;
+Mesh* mesh;
 ```
 
-## 3\. Использование матриц в шейдерах (GLSL)
+`Transform` хранит position, rotation, scale и строит model matrix.
 
-### 3a. Преобразование вершин
+`Camera` строит view/projection matrix и обрабатывает движение.
 
-Положение каждой вершины вычисляется в вершинном шейдере (Vertex Shader) с использованием конвейера преобразований:
+`Light` пока представляет простой источник света с position/color.
 
-$$GlPosition = \mathbf{Projection} \times \mathbf{View} \times \mathbf{Model} \times \text{Vector}(aPos, 1.0)$$
+### Render
 
-### 3b. Расчет теней (Shadow Map)
+`Mesh` хранит vertex/index data и OpenGL buffers.
 
-Для расчета теней сначала создается **карта глубины** (Depth Map), используя матрицу пространства света:
+`Vertex` сейчас содержит:
 
-$$GlPosition_{shadow} = \mathbf{LightSpaceMatrix} \times \mathbf{Model} \times \text{Vector}(aPos, 1.0)$$
+```cpp
+Vector position;
+Vector normal;
+float tex_u;
+float tex_v;
+```
 
-### 3c. Модель освещения (Фрагментный шейдер)
+`Material` хранит:
 
-Используется модель **диффузного освещения Ламберта** (Lambertian Diffuse Lighting), где интенсивность света пропорциональна косинусу угла между нормалью и вектором света:
+```cpp
+Shader* shader;
+Vector base_color;
+Texture* base_color_texture;
+```
 
-$$I_{diffuse} = L_{color} \times K_{diffuse} \times \max(0, \mathbf{N}_{norm} \cdot \mathbf{VL}_{norm})$$
+`Renderer` проходит по объектам сцены, активирует material/shader, передает uniforms и вызывает `mesh.draw()`.
 
-Где $\mathbf{N}$ — вектор нормали (преобразованный через $\mathbf{NormalMatrix}$), а $\mathbf{VL}$ — вектор света.
+`Model` является владельцем ресурсов импортированной модели:
 
------
+```cpp
+std::vector<std::unique_ptr<Mesh>> meshes;
+std::vector<std::unique_ptr<Material>> materials;
+std::vector<std::unique_ptr<Texture>> textures;
+std::vector<SceneObject> objects;
+```
 
-![alt text](resource/image.png)
-![alt text](resource/image-1.png)
-![alt text](resource/image-4.png)
-![alt text](resource/image-2.png)
-![alt text](resource/image-3.png)
+Это нужно, потому что `SceneObject` хранит только указатели на `Mesh` и `Material`, а кто-то должен владеть реальными ресурсами.
+
+### Assets
+
+`TextureLoader` загружает изображения через `stb_image`.
+
+Поддерживает:
+
+- загрузку из файла;
+- загрузку из памяти для embedded textures внутри `.glb`.
+
+`ModelLoader` использует Assimp и конвертирует:
+
+```text
+aiScene    -> Model
+aiMesh     -> Mesh
+aiMaterial -> Material
+aiTexture  -> Texture
+aiNode     -> SceneObject + Transform + name
+```
+
+При загрузке выводится статистика:
+
+```text
+Loaded model: ... | meshes=... materials=... textures=... objects=... nodes=...
+Model textures: external=... embedded=... reused=...
+```
+
+## Sandbox
+
+Текущее sandbox-приложение находится в:
+
+```text
+apps/sandbox
+```
+
+Оно делает минимальную демонстрацию:
+
+- создает `Application`;
+- задает `assets_dir`;
+- создает `Sandbox` через `SceneFactory`;
+- загружает shader из `assets/shaders`;
+- загружает модель тигра из `assets/models/tiger.obj`;
+- добавляет объекты модели в сцену;
+- позволяет управлять камерой.
+
+Управление:
+
+```text
+W/A/S/D      движение камеры
+Space        вверх
+Left Ctrl    вниз
+Mouse        вращение камеры
+Q/E          изменить FOV
+F11          fullscreen/windowed
+Escape       закрыть приложение
+```
+
+## Blender / Model Pipeline
+
+Рекомендуемый workflow:
+
+```text
+Blender или скачанная модель
+        |
+        v
+.obj + .mtl + textures
+или .gltf/.glb
+        |
+        v
+assets/models
+assets/textures
+        |
+        v
+ModelLoader
+        |
+        v
+Model -> SceneObject -> Renderer
+```
+
+Сейчас движок реально использует diffuse/base color texture. Normal map и roughness texture могут лежать рядом, но пока не участвуют в шейдере.
+
+## Сборка
+
+Требования:
+
+- CMake 3.10+
+- C++17 compiler
+- GLFW
+- GLAD object file в `vendor/glad.o`
+- Assimp submodule в `third_party/assimp`
+- Windows/MinGW сейчас является основной проверенной конфигурацией
+
+Конфигурация:
+
+```powershell
+cmake -S . -B build
+```
+
+Сборка sandbox:
+
+```powershell
+cmake --build build --target sandbox --config Debug
+```
+
+Запуск:
+
+```powershell
+.\build\apps\sandbox\sandbox.exe
+```
+
+Для Windows/MinGW `apps/sandbox/CMakeLists.txt` копирует рядом с `sandbox.exe` нужные runtime DLL:
+
+```text
+libassimp-6d.dll
+glfw3.dll
+libstdc++-6.dll
+libgcc_s_seh-1.dll
+libwinpthread-1.dll
+```
