@@ -1,5 +1,6 @@
 #include "../include/assets/modelLoader.hpp"
 
+#include "../include/core/log.hpp"
 #include "../include/math/vector.hpp"
 #include "../include/scene/transform.hpp"
 
@@ -23,6 +24,19 @@ namespace {
 constexpr GLenum texture_type = GL_TEXTURE_2D;
 constexpr GLenum texture_slot = GL_TEXTURE0;
 constexpr GLenum texture_pixel_type = GL_UNSIGNED_BYTE;
+
+struct ModelLoadStats {
+    std::size_t mesh_count = 0;
+    std::size_t material_count = 0;
+    std::size_t texture_count = 0;
+    std::size_t object_count = 0;
+    std::size_t nodes_visited = 0;
+    std::size_t embedded_texture_count = 0;
+    std::size_t external_texture_count = 0;
+    std::size_t reused_texture_count = 0;
+    std::size_t missing_uv_mesh_count = 0;
+    std::size_t missing_normal_mesh_count = 0;
+};
 
 unsigned int get_import_flags(const ModelLoaderSettings& settings) {
     unsigned int flags =
@@ -129,7 +143,8 @@ bool get_base_color_texture_path(const aiMaterial& material, aiString& texture_p
 engine::render::Texture* load_embedded_texture(
     engine::render::Model& model,
     const aiScene& scene,
-    const aiString& texture_path
+    const aiString& texture_path,
+    ModelLoadStats& stats
 ) {
     const aiTexture* embedded_texture = scene.GetEmbeddedTexture(texture_path.C_Str());
     if (!embedded_texture) {
@@ -146,6 +161,9 @@ engine::render::Texture* load_embedded_texture(
     const auto* data = reinterpret_cast<const unsigned char*>(embedded_texture->pcData);
     const int size = static_cast<int>(embedded_texture->mWidth);
 
+    ++stats.embedded_texture_count;
+    ++stats.texture_count;
+
     return &model.create_texture_from_memory(
         data,
         size,
@@ -160,13 +178,15 @@ engine::render::Texture* load_external_texture(
     engine::render::Model& model,
     const std::filesystem::path& model_dir,
     const aiString& texture_path,
-    std::unordered_map<std::string, engine::render::Texture*>& texture_cache
+    std::unordered_map<std::string, engine::render::Texture*>& texture_cache,
+    ModelLoadStats& stats
 ) {
     const std::filesystem::path resolved_path = resolve_texture_path(model_dir, texture_path);
     const std::string cache_key = resolved_path.string();
 
     const auto found = texture_cache.find(cache_key);
     if (found != texture_cache.end()) {
+        ++stats.reused_texture_count;
         return found->second;
     }
 
@@ -177,6 +197,8 @@ engine::render::Texture* load_external_texture(
         texture_pixel_type
     );
     texture_cache.emplace(cache_key, &texture);
+    ++stats.external_texture_count;
+    ++stats.texture_count;
 
     return &texture;
 }
@@ -186,7 +208,8 @@ engine::render::Texture* load_material_texture(
     const aiScene& scene,
     const aiMaterial& material,
     const std::filesystem::path& model_dir,
-    std::unordered_map<std::string, engine::render::Texture*>& texture_cache
+    std::unordered_map<std::string, engine::render::Texture*>& texture_cache,
+    ModelLoadStats& stats
 ) {
     aiString texture_path;
     if (!get_base_color_texture_path(material, texture_path)) {
@@ -195,13 +218,13 @@ engine::render::Texture* load_material_texture(
 
     if (const aiTexture* embedded_texture = scene.GetEmbeddedTexture(texture_path.C_Str())) {
         (void)embedded_texture;
-        return load_embedded_texture(model, scene, texture_path);
+        return load_embedded_texture(model, scene, texture_path, stats);
     }
 
-    return load_external_texture(model, model_dir, texture_path, texture_cache);
+    return load_external_texture(model, model_dir, texture_path, texture_cache, stats);
 }
 
-engine::render::Mesh& load_mesh(engine::render::Model& model, const aiMesh& source_mesh) {
+engine::render::Mesh& load_mesh(engine::render::Model& model, const aiMesh& source_mesh, ModelLoadStats& stats) {
     std::vector<engine::render::Vertex> vertices;
     std::vector<unsigned int> indices;
 
@@ -209,14 +232,13 @@ engine::render::Mesh& load_mesh(engine::render::Model& model, const aiMesh& sour
 
     for (unsigned int vertex_index = 0; vertex_index < source_mesh.mNumVertices; ++vertex_index) {
         const aiVector3D& position = source_mesh.mVertices[vertex_index];
-        const aiVector3D normal =
-            source_mesh.HasNormals()
-                ? source_mesh.mNormals[vertex_index]
-                : aiVector3D(0.0f, 1.0f, 0.0f);
+        const bool has_normals = source_mesh.HasNormals();
+        const aiVector3D normal = has_normals ? source_mesh.mNormals[vertex_index] : aiVector3D(0.0f, 1.0f, 0.0f);
 
         float tex_u = 0.0f;
         float tex_v = 0.0f;
-        if (source_mesh.HasTextureCoords(0)) {
+        const bool has_uv = source_mesh.HasTextureCoords(0);
+        if (has_uv) {
             tex_u = source_mesh.mTextureCoords[0][vertex_index].x;
             tex_v = source_mesh.mTextureCoords[0][vertex_index].y;
         }
@@ -229,6 +251,14 @@ engine::render::Mesh& load_mesh(engine::render::Model& model, const aiMesh& sour
         });
     }
 
+    if (!source_mesh.HasNormals()) {
+        ++stats.missing_normal_mesh_count;
+    }
+
+    if (!source_mesh.HasTextureCoords(0)) {
+        ++stats.missing_uv_mesh_count;
+    }
+
     for (unsigned int face_index = 0; face_index < source_mesh.mNumFaces; ++face_index) {
         const aiFace& face = source_mesh.mFaces[face_index];
         for (unsigned int index = 0; index < face.mNumIndices; ++index) {
@@ -236,6 +266,7 @@ engine::render::Mesh& load_mesh(engine::render::Model& model, const aiMesh& sour
         }
     }
 
+    ++stats.mesh_count;
     return model.create_mesh(vertices, indices);
 }
 
@@ -246,14 +277,16 @@ engine::render::Material& load_material(
     engine::render::Shader& shader,
     const std::filesystem::path& model_dir,
     const ModelLoaderSettings& settings,
-    std::unordered_map<std::string, engine::render::Texture*>& texture_cache
+    std::unordered_map<std::string, engine::render::Texture*>& texture_cache,
+    ModelLoadStats& stats
 ) {
     engine::render::Material& material = model.create_material(shader);
+    ++stats.material_count;
     apply_base_color(material, source_material);
 
     if (settings.load_textures) {
         if (engine::render::Texture* texture =
-                load_material_texture(model, scene, source_material, model_dir, texture_cache)) {
+                load_material_texture(model, scene, source_material, model_dir, texture_cache, stats)) {
             material.set_base_color_texture(texture);
         }
     }
@@ -280,8 +313,10 @@ void process_node(
     const aiMatrix4x4& parent_transform,
     const std::vector<engine::render::Mesh*>& meshes,
     std::vector<engine::render::Material*>& materials,
-    engine::render::Material& default_material
+    engine::render::Material& default_material,
+    ModelLoadStats& stats
 ) {
+    ++stats.nodes_visited;
     const aiMatrix4x4 global_transform = parent_transform * node.mTransformation;
     const engine::scene::Transform transform = to_transform(global_transform);
 
@@ -293,7 +328,8 @@ void process_node(
 
         const aiMesh& source_mesh = *scene.mMeshes[mesh_index];
         engine::render::Material& material = get_material_for_mesh(source_mesh, materials, default_material);
-        model.add_object(transform, material, *meshes[mesh_index]);
+        model.add_object(node.mName.C_Str(), transform, material, *meshes[mesh_index]);
+        ++stats.object_count;
     }
 
     for (unsigned int child_index = 0; child_index < node.mNumChildren; ++child_index) {
@@ -304,7 +340,52 @@ void process_node(
             global_transform,
             meshes,
             materials,
-            default_material
+            default_material,
+            stats
+        );
+    }
+}
+
+void log_load_stats(
+    engine::core::Logger* logger,
+    const std::filesystem::path& model_path,
+    const ModelLoadStats& stats
+) {
+    if (!logger) {
+        return;
+    }
+
+    logger->info(
+        engine::core::LogCategory::Assets,
+        "Loaded model: " +
+            model_path.string() +
+            " | meshes=" + std::to_string(stats.mesh_count) +
+            " materials=" + std::to_string(stats.material_count) +
+            " textures=" + std::to_string(stats.texture_count) +
+            " objects=" + std::to_string(stats.object_count) +
+            " nodes=" + std::to_string(stats.nodes_visited)
+    );
+
+    if (stats.external_texture_count > 0 || stats.embedded_texture_count > 0 || stats.reused_texture_count > 0) {
+        logger->info(
+            engine::core::LogCategory::Assets,
+            "Model textures: external=" + std::to_string(stats.external_texture_count) +
+                " embedded=" + std::to_string(stats.embedded_texture_count) +
+                " reused=" + std::to_string(stats.reused_texture_count)
+        );
+    }
+
+    if (stats.missing_uv_mesh_count > 0) {
+        logger->warning(
+            engine::core::LogCategory::Assets,
+            "Model meshes without UV: " + std::to_string(stats.missing_uv_mesh_count)
+        );
+    }
+
+    if (stats.missing_normal_mesh_count > 0) {
+        logger->warning(
+            engine::core::LogCategory::Assets,
+            "Model meshes without normals: " + std::to_string(stats.missing_normal_mesh_count)
         );
     }
 }
@@ -313,6 +394,11 @@ void process_node(
 
 ModelLoader::ModelLoader(const ModelLoaderSettings& settings)
     : settings(settings) {
+}
+
+ModelLoader::ModelLoader(const ModelLoaderSettings& settings, engine::core::Logger* logger)
+    : settings(settings),
+      logger(logger) {
 }
 
 engine::render::Model ModelLoader::load(
@@ -333,12 +419,14 @@ engine::render::Model ModelLoader::load(
     engine::render::Model model;
     const std::filesystem::path model_dir = model_path.parent_path();
     std::unordered_map<std::string, engine::render::Texture*> texture_cache;
+    ModelLoadStats stats;
 
     engine::render::Material& default_material = model.create_material(shader);
+    ++stats.material_count;
 
     std::vector<engine::render::Mesh*> meshes(scene->mNumMeshes, nullptr);
     for (unsigned int mesh_index = 0; mesh_index < scene->mNumMeshes; ++mesh_index) {
-        meshes[mesh_index] = &load_mesh(model, *scene->mMeshes[mesh_index]);
+        meshes[mesh_index] = &load_mesh(model, *scene->mMeshes[mesh_index], stats);
     }
 
     std::vector<engine::render::Material*> materials(scene->mNumMaterials, nullptr);
@@ -350,12 +438,14 @@ engine::render::Model ModelLoader::load(
             shader,
             model_dir,
             settings,
-            texture_cache
+            texture_cache,
+            stats
         );
     }
 
     aiMatrix4x4 identity;
-    process_node(model, *scene, *scene->mRootNode, identity, meshes, materials, default_material);
+    process_node(model, *scene, *scene->mRootNode, identity, meshes, materials, default_material, stats);
+    log_load_stats(logger, model_path, stats);
 
     return std::move(model);
 }
@@ -366,6 +456,10 @@ const ModelLoaderSettings& ModelLoader::get_settings() const {
 
 void ModelLoader::set_settings(const ModelLoaderSettings& new_settings) {
     settings = new_settings;
+}
+
+void ModelLoader::set_logger(engine::core::Logger* new_logger) {
+    logger = new_logger;
 }
 
 } // namespace engine::assets

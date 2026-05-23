@@ -1,6 +1,7 @@
 #ifndef MODEL_LOADER_HPP
 #define MODEL_LOADER_HPP
 
+#include "../core/log.hpp"
 #include "../render/model.hpp"
 #include "../render/shader.hpp"
 
@@ -18,6 +19,7 @@ class ModelLoader final {
 public:
     ModelLoader() = default;
     ModelLoader(const ModelLoaderSettings& settings);
+    ModelLoader(const ModelLoaderSettings& settings, engine::core::Logger* logger);
 
     engine::render::Model load(
         const std::filesystem::path& model_path,
@@ -26,9 +28,11 @@ public:
 
     const ModelLoaderSettings& get_settings() const;
     void set_settings(const ModelLoaderSettings& new_settings);
+    void set_logger(engine::core::Logger* new_logger);
 
 private:
     ModelLoaderSettings settings;
+    engine::core::Logger* logger = nullptr;
 };
 
 } // namespace engine::assets
