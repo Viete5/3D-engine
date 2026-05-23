@@ -1,6 +1,6 @@
 # Blender 4.0.1
 # www.blender.org
-mtllib uploads_files_5014578_Tiger_Quad.mtl
+mtllib tiger.mtl
 o Tiger_Quad
 v -0.018965 0.311435 -0.879614
 v -0.024848 0.294685 -0.864894
