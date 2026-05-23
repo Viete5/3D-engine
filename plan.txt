@@ -1,0 +1,77 @@
+openGL/
+├─ CMakeLists.txt
+├─ CMakePresets.json
+├─ README.md
+├─ .gitignore
+│
+├─ apps/
+│  └─ sandbox/
+│     ├─ CMakeLists.txt
+│     └─ src/
+│        └─ main.cpp
+│
+├─ engine/
+│  ├─ CMakeLists.txt
+│  ├─ include/
+│  │  └─ engine/
+│  │     ├─ core/
+│  │     │  ├─ Application.hpp
+│  │     │  ├─ Time.hpp
+│  │     │  ├─ Paths.hpp
+│  │     │  └─ Log.hpp
+│  │     ├─ math/
+│  │     │  ├─ Vector3.hpp
+│  │     │  ├─ Vector4.hpp
+│  │     │  └─ Matrix4.hpp
+│  │     ├─ scene/
+│  │     │  ├─ Transform.hpp
+│  │     │  ├─ Camera.hpp
+│  │     │  ├─ Light.hpp
+│  │     │  ├─ Scene.hpp
+│  │     │  └─ SceneObject.hpp
+│  │     ├─ render/ 
+│  │     │  ├─ Mesh.hpp
+│  │     │  ├─ Material.hpp
+│  │     │  ├─ Texture.hpp
+│  │     │  ├─ Shader.hpp
+│  │     │  ├─ Model.hpp
+│  │     │  └─ Renderer.hpp
+│  │     ├─ render/opengl/
+│  │     │  ├─ GLBuffer.hpp
+│  │     │  ├─ GLVertexArray.hpp
+│  │     │  ├─ GLTexture.hpp
+│  │     │  └─ GLShaderProgram.hpp
+│  │     ├─ assets/
+│  │     │  ├─ AssetManager.hpp
+│  │     │  ├─ TextureLoader.hpp
+│  │     │  └─ ModelLoaderAssimp.hpp
+│  │     └─ platform/
+│  │        ├─ Window.hpp
+│  │        └─ Input.hpp
+│  │
+│  └─ src/
+│     ├─ core/
+│     ├─ math/
+│     ├─ scene/
+│     ├─ render/
+│     ├─ render/opengl/
+│     ├─ assets/
+│     └─ platform/
+│
+├─ assets/
+│  ├─ models/
+│  ├─ textures/
+│  ├─ shaders/
+│  └─ scenes/
+│
+├─ third_party/
+│  └─ assimp/
+│
+├─ vendor/
+│  ├─ glad.c
+│  └─ include/
+│
+└─ tests/
+   ├─ CMakeLists.txt
+   ├─ math/
+   └─ assets/
