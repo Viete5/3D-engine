@@ -28,7 +28,7 @@ struct ApplicationConfig {
 
 class Application final {
 public:
-    using SceneFactory = std::function<std::unique_ptr<engine::scene::Scene>(const Paths& paths)>;
+    using SceneFactory = std::function<std::unique_ptr<engine::scene::Scene>(const Paths& paths, Logger& logger)>;
 
     Application();
     ~Application();

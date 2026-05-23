@@ -47,7 +47,7 @@ int Application::run(const ApplicationConfig& config) {
         }
 
         if (!scene && scene_factory) {
-            scene = scene_factory(paths);
+            scene = scene_factory(paths, logger);
         }
 
         if (!scene) {
