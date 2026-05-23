@@ -1,6 +1,7 @@
 #include "../include/scene/sceneObject.hpp"
 
 #include <stdexcept>
+#include <utility>
 
 namespace engine::scene {
 
@@ -9,7 +10,17 @@ SceneObject::SceneObject(
     engine::render::Material* material,
     engine::render::Mesh* mesh
 )
-    : transform(transform),
+    : SceneObject("", transform, material, mesh) {
+}
+
+SceneObject::SceneObject(
+    std::string name,
+    const Transform& transform,
+    engine::render::Material* material,
+    engine::render::Mesh* mesh
+)
+    : name(std::move(name)),
+      transform(transform),
       material(material),
       mesh(mesh) {}
 
@@ -33,6 +44,10 @@ engine::render::Mesh& SceneObject::get_mesh() {
     return *mesh;
 }
 
+const std::string& SceneObject::get_name() const {
+    return name;
+}
+
 const Transform& SceneObject::get_transform() const {
     return transform;
 }
@@ -51,6 +66,10 @@ const engine::render::Mesh& SceneObject::get_mesh() const {
     }
 
     return *mesh;
+}
+
+void SceneObject::set_name(std::string new_name) {
+    name = std::move(new_name);
 }
 
 void SceneObject::set_transform(const Transform& new_transform) {

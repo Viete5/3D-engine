@@ -10,6 +10,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace engine::render {
@@ -21,6 +22,8 @@ public:
 
     Model(const Model& other) = delete;
     Model& operator=(const Model& other) = delete;
+    Model(Model&& other) noexcept = default;
+    Model& operator=(Model&& other) noexcept = default;
 
     Mesh& create_mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
     Material& create_material(Shader& shader);
@@ -38,6 +41,12 @@ public:
     Material& add_material(std::unique_ptr<Material> material);
     Texture& add_texture(std::unique_ptr<Texture> texture);
     engine::scene::SceneObject& add_object(const engine::scene::Transform& transform, Material& material, Mesh& mesh);
+    engine::scene::SceneObject& add_object(
+        std::string name,
+        const engine::scene::Transform& transform,
+        Material& material,
+        Mesh& mesh
+    );
 
     Mesh& get_mesh(std::size_t index);
     Material& get_material(std::size_t index);

@@ -56,7 +56,16 @@ Texture& Model::add_texture(std::unique_ptr<Texture> texture) {
 }
 
 engine::scene::SceneObject& Model::add_object(const engine::scene::Transform& transform, Material& material, Mesh& mesh) {
-    objects.emplace_back(transform, &material, &mesh);
+    return add_object("", transform, material, mesh);
+}
+
+engine::scene::SceneObject& Model::add_object(
+    std::string name,
+    const engine::scene::Transform& transform,
+    Material& material,
+    Mesh& mesh
+) {
+    objects.emplace_back(std::move(name), transform, &material, &mesh);
     return objects.back();
 }
 
