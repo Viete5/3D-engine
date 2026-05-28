@@ -3,6 +3,7 @@
 #include "../../../engine/include/core/log.hpp"
 #include "../../../engine/include/core/paths.hpp"
 #include "../../../engine/include/math/vector.hpp"
+#include "../../../engine/include/math/vector4.hpp"
 #include "../../../engine/include/platform/input.hpp"
 #include "../../../engine/include/render/primitives.hpp"
 
@@ -52,12 +53,17 @@ BrownianScene::BrownianScene(const engine::core::Paths& paths, engine::core::Log
           paths.get_shader_path("sandbox.fs").string().c_str()
       ),
       particle_mesh(engine::render::create_sphere_mesh(1.0f, 12, 16)),
+      container_mesh(engine::render::create_cube_mesh()),
       small_particle_material(shader),
-      large_particle_material(shader) {
+      large_particle_material(shader),
+      container_material(shader) {
     small_particle_material.set_base_color(engine::math::Vector(0.15f, 0.52f, 1.0f));
     large_particle_material.set_base_color(engine::math::Vector(1.0f, 0.67f, 0.18f));
+    container_material.set_base_color(engine::math::Vector4(0.3f,0.1f,0.1f,0.2f));
 
+    objects.clear();
     create_particle_objects();
+    create_container_object();
 
     logger.info(
         engine::core::LogCategory::Scene,
@@ -77,8 +83,6 @@ void BrownianScene::update(const engine::scene::SceneUpdateContext& context) {
 }
 
 void BrownianScene::create_particle_objects() {
-    objects.clear();
-
     const std::vector<BrownianParticle>& particles = simulation.get_particles();
     objects.reserve(particles.size() + 1);
 
@@ -97,6 +101,23 @@ void BrownianScene::create_particle_objects() {
         make_particle_transform(simulation.get_large_particle()),
         &large_particle_material,
         &particle_mesh
+    );
+}
+
+void BrownianScene::create_container_object() {
+    engine::math::Vector bounds = simulation.get_settings().bounds;
+
+    engine::scene::Transform container_transform(
+        engine::math::Vector(0.0f,0.0f,0.0f),
+        engine::math::Vector(0.0f,0.0f,0.0f),
+        engine::math::Vector(bounds.get_x()*2, bounds.get_y()*2, bounds.get_z()*2)
+    );
+
+    objects.emplace_back(
+        "container",
+        container_transform,
+        &container_material,
+        &container_mesh
     );
 }
 
