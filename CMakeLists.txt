@@ -21,3 +21,4 @@ add_subdirectory(third_party/assimp EXCLUDE_FROM_ALL)
 
 add_subdirectory(engine)
 add_subdirectory(apps/sandbox)
+add_subdirectory(apps/physicsScenes/brownian)
