@@ -49,6 +49,13 @@ engine::math::Vector calculate_torus_normal(float angle_xy, float angle_z) {
     return engine::math::Vector(x, y, z);
 }
 
+engine::math::Vector calculate_sphere_point(float radius, float theta, float phi) {
+    const float x = radius * std::sin(theta) * std::cos(phi);
+    const float y = radius * std::cos(theta);
+    const float z = radius * std::sin(theta) * std::sin(phi);
+    return engine::math::Vector(x, y, z);
+}
+
 } // namespace
 
 Mesh create_cube_mesh() {
@@ -98,6 +105,59 @@ Mesh create_cube_mesh() {
         16, 17, 18, 19, 18, 17,
         20, 22, 23, 23, 21, 20
     };
+
+    return Mesh(vertices, indices);
+}
+
+Mesh create_sphere_mesh(float radius, int stacks, int slices) {
+    if (radius <= 0.0f) {
+        throw std::runtime_error("Sphere radius must be positive");
+    }
+
+    if (stacks <= 0 || slices <= 0) {
+        throw std::runtime_error("Sphere stacks and slices must be positive");
+    }
+
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+
+    vertices.reserve(static_cast<std::size_t>(stacks + 1) * static_cast<std::size_t>(slices + 1));
+    indices.reserve(static_cast<std::size_t>(stacks) * static_cast<std::size_t>(slices) * 6);
+
+    for (int stack = 0; stack <= stacks; ++stack) {
+        const float theta = pi * static_cast<float>(stack) / static_cast<float>(stacks);
+
+        for (int slice = 0; slice <= slices; ++slice) {
+            const float phi = 2.0f * pi * static_cast<float>(slice) / static_cast<float>(slices);
+            const engine::math::Vector position = calculate_sphere_point(radius, theta, phi);
+            const engine::math::Vector normal = position.normalize();
+
+            vertices.push_back(Vertex{
+                position,
+                normal,
+                static_cast<float>(slice) / static_cast<float>(slices),
+                static_cast<float>(stack) / static_cast<float>(stacks)
+            });
+        }
+    }
+
+    for (int stack = 0; stack < stacks; ++stack) {
+        for (int slice = 0; slice < slices; ++slice) {
+            const unsigned int base_index = static_cast<unsigned int>(stack * (slices + 1) + slice);
+            const unsigned int point_a = base_index;
+            const unsigned int point_b = base_index + 1;
+            const unsigned int point_c = base_index + static_cast<unsigned int>(slices + 1);
+            const unsigned int point_d = point_c + 1;
+
+            indices.push_back(point_a);
+            indices.push_back(point_c);
+            indices.push_back(point_b);
+
+            indices.push_back(point_b);
+            indices.push_back(point_c);
+            indices.push_back(point_d);
+        }
+    }
 
     return Mesh(vertices, indices);
 }
