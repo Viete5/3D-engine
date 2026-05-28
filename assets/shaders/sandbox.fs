@@ -6,7 +6,7 @@ struct Light {
 };
 
 struct Material {
-    vec3 base_color;
+    vec4 base_color;
     int has_base_color_texture;
     sampler2D base_color_texture;
 };
@@ -23,10 +23,10 @@ uniform Material material;
 
 void main()
 {
-    vec3 surface_color = material.base_color;
+    vec4 surface_color = material.base_color;
 
     if (material.has_base_color_texture != 0) {
-        surface_color *= texture(material.base_color_texture, tex_coord).rgb;
+        surface_color *= texture(material.base_color_texture, tex_coord);
     }
 
     vec3 normalized_normal = normalize(normal);
@@ -38,5 +38,5 @@ void main()
         lighting += diffuse_strength * lights[i].color;
     }
 
-    frag_color = vec4(surface_color * lighting, 1.0);
+    frag_color = vec4(surface_color.rgb * lighting, surface_color.a);
 }
