@@ -66,7 +66,6 @@ BrownianSimulation::BrownianSimulation(const BrownianSimulationSettings& setting
 
 void BrownianSimulation::reset() {
     settings.temperature = clamp_temperature(settings.temperature);
-    paused = false;
     particles.clear();
     particles.reserve(static_cast<std::size_t>(std::max(0, settings.particle_count)));
 

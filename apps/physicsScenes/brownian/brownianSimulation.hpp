@@ -4,6 +4,8 @@
 #include <vector>
 #include "brownianParticle.hpp"
 
+// электрическое поле. Аттрактор. Управление большой частицы
+
 struct BrownianSimulationSettings {
     int particle_count = 500;
     engine::math::Vector bounds = engine::math::Vector(3.0f, 3.0f, 3.0f);

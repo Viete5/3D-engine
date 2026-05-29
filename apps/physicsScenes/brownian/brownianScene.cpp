@@ -191,7 +191,14 @@ void BrownianScene::handle_simulation_input(const engine::scene::SceneUpdateCont
     }
     if (input.is_key_down(engine::platform::Key::E)) {
         temperature += delta_time;
+    }   
+    if (input.is_key_pressed(engine::platform::Key::P)) {
+        simulation.toggle_pause();
     }
-
+    if (input.is_key_pressed(engine::platform::Key::R)) {
+        simulation.reset();
+        large_particle_trail.reset(simulation.get_large_particle().position, 0.0f);
+    }
+    
     simulation.set_temperature(std::clamp(temperature, 0.1f, 5.0f));
 }
