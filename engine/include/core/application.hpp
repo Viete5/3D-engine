@@ -53,7 +53,6 @@ private:
 
     std::unique_ptr<engine::scene::Scene> scene;
     SceneFactory scene_factory;
-    bool f11_pressed_last_frame = false;
 
     bool initialize(const ApplicationConfig& config);
     void shutdown();

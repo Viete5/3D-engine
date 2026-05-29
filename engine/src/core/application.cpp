@@ -62,6 +62,7 @@ int Application::run(const ApplicationConfig& config) {
             time.update();
             input.begin_frame();
             window.poll_events();
+            input.update_key_states();
             process_application_input();
             scene->get_camera().update_aspect_ratio(window.get_aspect_ratio());
 
@@ -127,12 +128,9 @@ void Application::process_application_input() {
     if (input.is_key_down(engine::platform::Key::Escape)) {
         window.set_should_close(true);
     }
-
-    const bool f11_pressed = input.is_key_down(engine::platform::Key::F11);
-    if (f11_pressed && !f11_pressed_last_frame) {
+    if (input.is_key_pressed(engine::platform::Key::F11)) {
         window.toggle_fullscreen();
     }
-    f11_pressed_last_frame = f11_pressed;
 }
 
 } // namespace engine::core

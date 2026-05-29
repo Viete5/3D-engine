@@ -22,12 +22,18 @@ int to_glfw_key(Key key) {
             return GLFW_KEY_E;
         case Key::Escape:
             return GLFW_KEY_ESCAPE;
+        case Key::P:
+            return GLFW_KEY_P;
+        case Key::R:
+            return GLFW_KEY_R;
         case Key::Space:
             return GLFW_KEY_SPACE;
         case Key::LeftControl:
             return GLFW_KEY_LEFT_CONTROL;
         case Key::F11:
             return GLFW_KEY_F11;
+        case Key::Count:
+            return GLFW_KEY_UNKNOWN;
     }
 
     return GLFW_KEY_UNKNOWN;
@@ -57,8 +63,20 @@ void Input::attach(GLFWwindow* window) {
 }
 
 void Input::begin_frame() {
+    previous_keys = current_keys;
     delta_x = 0.0f;
     delta_y = 0.0f;
+}
+
+void Input::update_key_states() {
+    if (!window) {
+        return;
+    }
+
+    for (std::size_t index = 0; index < current_keys.size(); ++index) {
+        const Key key = static_cast<Key>(index);
+        current_keys[index] = glfwGetKey(window, to_glfw_key(key)) == GLFW_PRESS;
+    }
 }
 
 bool Input::is_key_down(Key key) const {
@@ -66,7 +84,24 @@ bool Input::is_key_down(Key key) const {
         return false;
     }
 
-    return glfwGetKey(window, to_glfw_key(key)) == GLFW_PRESS;
+    if (key == Key::Count) {
+        return false;
+    }
+
+    return current_keys[get_key_index(key)];
+}
+
+bool Input::is_key_pressed(Key key) const {
+    if (!window) {
+        return false;
+    }
+
+    if (key == Key::Count) {
+        return false;
+    }
+
+    const std::size_t key_index = get_key_index(key);
+    return current_keys[key_index] && !previous_keys[key_index];
 }
 
 bool Input::is_mouse_button_down(MouseButton button) const {
@@ -107,6 +142,10 @@ void Input::update_mouse_position(double x, double y) {
 
     last_x = static_cast<float>(x);
     last_y = static_cast<float>(y);
+}
+
+std::size_t Input::get_key_index(Key key) {
+    return static_cast<std::size_t>(key);
 }
 
 }  // namespace engine::platform
