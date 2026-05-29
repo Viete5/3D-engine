@@ -2,10 +2,10 @@
 
 namespace engine::render::opengl {
 
-EBO::EBO(const void *indices, size_t size) {
+EBO::EBO(const void* indices, std::size_t size, GLenum usage) {
     glGenBuffers(1, &id);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(size), indices, usage);
 }
 
 EBO::EBO() {
@@ -44,6 +44,11 @@ void EBO::bind() const{
 
 void EBO::unbind() const {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void EBO::set_data(const void* indices, std::size_t size, GLenum usage) const {
+    bind();
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(size), indices, usage);
 }
 
 } // namespace engine::render::opengl

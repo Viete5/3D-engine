@@ -2,10 +2,10 @@
 
 namespace engine::render::opengl {
 
-VBO::VBO(const void *vertices, size_t size) {
+VBO::VBO(const void* vertices, std::size_t size, GLenum usage) {
     glGenBuffers(1, &id);
     glBindBuffer(GL_ARRAY_BUFFER, id);
-    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(size), vertices, usage);
 }
 
 VBO::VBO() {
@@ -44,6 +44,11 @@ void VBO::bind() const{
 
 void VBO::unbind() const{
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void VBO::set_data(const void* vertices, std::size_t size, GLenum usage) const {
+    bind();
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(size), vertices, usage);
 }
 
 } // namespace engine::render::opengl

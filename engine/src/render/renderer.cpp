@@ -60,7 +60,7 @@ void Renderer::clear() const {
 void Renderer::sort_transparent_objects(
                 std::vector<const engine::scene::SceneObject*>& transparent_objects, 
                 const engine::scene::Camera& camera) const {
-    std::sort(
+    std::stable_sort(
         transparent_objects.begin(),
         transparent_objects.end(),
         [&camera](const auto* first, const auto* second) {

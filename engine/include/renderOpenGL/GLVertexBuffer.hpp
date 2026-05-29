@@ -3,11 +3,13 @@
 
 #include <glad/glad.h>
 
+#include <cstddef>
+
 namespace engine::render::opengl {
 
 class VBO {
 public:
-    VBO(const void *vertices, size_t size);
+    VBO(const void* vertices, std::size_t size, GLenum usage = GL_STATIC_DRAW);
     VBO();
     VBO(const VBO&) = delete;
     VBO& operator=(const VBO&) = delete;
@@ -17,6 +19,7 @@ public:
 
     void bind() const;
     void unbind() const;
+    void set_data(const void* vertices, std::size_t size, GLenum usage = GL_STATIC_DRAW) const;
 
 private:
     unsigned int id = 0;

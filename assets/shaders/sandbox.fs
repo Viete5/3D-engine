@@ -14,6 +14,7 @@ struct Material {
 in vec3 frag_position;
 in vec3 normal;
 in vec2 tex_coord;
+in vec4 vertex_color;
 
 out vec4 frag_color;
 
@@ -23,7 +24,7 @@ uniform Material material;
 
 void main()
 {
-    vec4 surface_color = material.base_color;
+    vec4 surface_color = material.base_color * vertex_color;
 
     if (material.has_base_color_texture != 0) {
         surface_color *= texture(material.base_color_texture, tex_coord);

@@ -2,6 +2,7 @@
 #define MESH_HPP
 
 #include "../math/vector.hpp"
+#include "../math/vector4.hpp"
 #include "../renderOpenGL/GLVertexArray.hpp"
 #include "../renderOpenGL/GLIndexBuffer.hpp"
 #include "../renderOpenGL/GLVertexBuffer.hpp"
@@ -14,6 +15,7 @@ struct Vertex {
     engine::math::Vector normal;
     float tex_u;
     float tex_v;
+    engine::math::Vector4 color = engine::math::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 };
 
 
@@ -22,8 +24,11 @@ public:
     Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
 
     void draw() const;
+    void update_data(const std::vector<Vertex>& new_vertices, const std::vector<unsigned int>& new_indices);
 
 private:
+    void link_vertex_attributes();
+
     opengl::VAO vao;
     opengl::VBO vbo;
     opengl::EBO ebo;
