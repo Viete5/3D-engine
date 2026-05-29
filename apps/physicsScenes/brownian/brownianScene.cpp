@@ -54,16 +54,21 @@ BrownianScene::BrownianScene(const engine::core::Paths& paths, engine::core::Log
       ),
       particle_mesh(engine::render::create_sphere_mesh(1.0f, 12, 16)),
       container_mesh(engine::render::create_cube_mesh()),
+      large_particle_trail(),
+      container_material(shader),
+      trail_material(shader),
       small_particle_material(shader),
-      large_particle_material(shader),
-      container_material(shader) {
+      large_particle_material(shader) {
     small_particle_material.set_base_color(engine::math::Vector(0.15f, 0.52f, 1.0f));
     large_particle_material.set_base_color(engine::math::Vector(1.0f, 0.67f, 0.18f));
-    container_material.set_base_color(engine::math::Vector4(0.3f,0.1f,0.1f,0.2f));
+    container_material.set_base_color(engine::math::Vector4(0.15f, 0.45f, 0.8f, 0.12f));
+    trail_material.set_base_color(engine::math::Vector4(1.0f, 0.78f, 0.22f, 0.9f));
+    large_particle_trail.reset(simulation.get_large_particle().position, 0.0f);
 
     objects.clear();
     create_particle_objects();
     create_container_object();
+    create_trail_object();
 
     logger.info(
         engine::core::LogCategory::Scene,
@@ -79,12 +84,17 @@ void BrownianScene::update(const engine::scene::SceneUpdateContext& context) {
     handle_simulation_input(context);
 
     simulation.update(context.delta_time);
+    large_particle_trail.update(
+        simulation.get_large_particle().position,
+        camera.get_position(),
+        context.elapsed_time
+    );
     sync_particle_objects();
 }
 
 void BrownianScene::create_particle_objects() {
     const std::vector<BrownianParticle>& particles = simulation.get_particles();
-    objects.reserve(particles.size() + 1);
+    objects.reserve(particles.size() + 3);
 
     for (std::size_t index = 0; index < particles.size(); ++index) {
         objects.emplace_back(
@@ -118,6 +128,15 @@ void BrownianScene::create_container_object() {
         container_transform,
         &container_material,
         &container_mesh
+    );
+}
+
+void BrownianScene::create_trail_object() {
+    objects.emplace_back(
+        "large_particle_trail",
+        engine::scene::Transform(),
+        &trail_material,
+        &large_particle_trail.get_mesh()
     );
 }
 

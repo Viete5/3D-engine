@@ -1,5 +1,6 @@
 add_executable(brownian_demo
     main.cpp
+    brownianTrail.cpp
     brownianSimulation.cpp
     brownianScene.cpp
 )

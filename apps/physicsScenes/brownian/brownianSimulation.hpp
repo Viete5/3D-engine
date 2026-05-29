@@ -7,7 +7,7 @@
 struct BrownianSimulationSettings {
     int particle_count = 500;
     engine::math::Vector bounds = engine::math::Vector(3.0f, 3.0f, 3.0f);
-    float small_radius = 0.045f;
+    float small_radius = 0.06f;
     float large_radius = 0.25f;
     float small_mass = 1.0f;
     float large_mass = 3.0f;
