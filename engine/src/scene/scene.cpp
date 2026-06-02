@@ -43,5 +43,16 @@ void Scene::set_lights(const std::vector<Light>& new_lights) {
     lights = new_lights;
 }
 
+void Scene::render_ui(
+    engine::render::TextRenderer& text_renderer,
+    const engine::render::Font& font,
+    unsigned int viewport_width,
+    unsigned int viewport_height
+) const {
+    (void)text_renderer;
+    (void)font;
+    (void)viewport_width;
+    (void)viewport_height;
+}
 
 } // namespace engine::scene

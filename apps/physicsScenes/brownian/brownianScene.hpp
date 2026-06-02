@@ -21,6 +21,12 @@ public:
     BrownianScene(const engine::core::Paths& paths, engine::core::Logger& logger);
 
     void update(const engine::scene::SceneUpdateContext& context) override;
+    void render_ui(
+        engine::render::TextRenderer& text_renderer,
+        const engine::render::Font& font,
+        unsigned int viewport_width,
+        unsigned int viewport_height
+    ) const override;
 
 private:
     void create_particle_objects();

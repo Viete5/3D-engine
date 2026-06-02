@@ -28,4 +28,8 @@ std::filesystem::path Paths::get_scene_path(const std::filesystem::path& relativ
     return assets_dir_path / "scenes" / relative_path;
 }
 
+std::filesystem::path Paths::get_font_path(const std::filesystem::path& relative_path) const {
+    return assets_dir_path / "fonts" / relative_path;
+}
+
 }  // namespace engine::core

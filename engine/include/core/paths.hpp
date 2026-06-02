@@ -15,6 +15,7 @@ public:
     std::filesystem::path get_texture_path(const std::filesystem::path& relative_path) const;
     std::filesystem::path get_model_path(const std::filesystem::path& relative_path) const;
     std::filesystem::path get_scene_path(const std::filesystem::path& relative_path) const;
+    std::filesystem::path get_font_path(const std::filesystem::path& relative_path) const;
 
 private:
     std::filesystem::path assets_dir_path;

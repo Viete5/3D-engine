@@ -5,9 +5,13 @@
 #include "../../../engine/include/math/vector.hpp"
 #include "../../../engine/include/math/vector4.hpp"
 #include "../../../engine/include/platform/input.hpp"
+#include "../../../engine/include/render/font.hpp"
 #include "../../../engine/include/render/primitives.hpp"
+#include "../../../engine/include/render/textRenderer.hpp"
 
 #include <algorithm>
+#include <iomanip>
+#include <sstream>
 #include <string>
 
 namespace {
@@ -90,6 +94,44 @@ void BrownianScene::update(const engine::scene::SceneUpdateContext& context) {
         context.elapsed_time
     );
     sync_particle_objects();
+}
+
+void BrownianScene::render_ui(
+    engine::render::TextRenderer& text_renderer,
+    const engine::render::Font& font,
+    unsigned int viewport_width,
+    unsigned int viewport_height
+) const {
+    std::ostringstream hud;
+    hud << std::fixed << std::setprecision(2)
+        << "Brownian Motion Demo\n"
+        << "Temperature: " << simulation.get_temperature() << "\n"
+        << "Particles: " << simulation.get_particles().size() << "\n"
+        << "Trail points: " << large_particle_trail.get_point_count() << "\n"
+        << "Paused: " << (simulation.get_paused() ? "yes" : "no") << "\n\n"
+        << "WASD - camera\n"
+        << "Mouse - look around\n"
+        << "Q/E - temperature\n"
+        << "P - pause\n"
+        << "R - reset\n"
+        << "F11 - fullscreen\n"
+        << "Esc - exit";
+
+    engine::render::TextLayoutSettings settings;
+    settings.font_size = 18.0f;
+    settings.line_spacing = 1.08f;
+    settings.vertical_align = engine::render::TextVerticalAlign::Top;
+    settings.color = engine::math::Vector4(0.92f, 0.96f, 1.0f, 0.95f);
+
+    text_renderer.draw_text(
+        font,
+        hud.str(),
+        20.0f,
+        static_cast<float>(viewport_height) - 20.0f,
+        viewport_width,
+        viewport_height,
+        settings
+    );
 }
 
 void BrownianScene::create_particle_objects() {
@@ -197,7 +239,7 @@ void BrownianScene::handle_simulation_input(const engine::scene::SceneUpdateCont
     }
     if (input.is_key_pressed(engine::platform::Key::R)) {
         simulation.reset();
-        large_particle_trail.reset(simulation.get_large_particle().position, 0.0f);
+        large_particle_trail.reset(simulation.get_large_particle().position, context.elapsed_time);
     }
     
     simulation.set_temperature(std::clamp(temperature, 0.1f, 5.0f));

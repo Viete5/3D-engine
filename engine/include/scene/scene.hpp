@@ -10,6 +10,11 @@ namespace engine::platform {
 class Input;
 }
 
+namespace engine::render {
+class Font;
+class TextRenderer;
+}
+
 namespace engine::scene {
 
 struct SceneUpdateContext {
@@ -27,6 +32,12 @@ public:
     virtual ~Scene() = default;
 
     virtual void update(const SceneUpdateContext& context) = 0;
+    virtual void render_ui(
+        engine::render::TextRenderer& text_renderer,
+        const engine::render::Font& font,
+        unsigned int viewport_width,
+        unsigned int viewport_height
+    ) const;
 
     std::vector<SceneObject>& get_objects();
     Camera& get_camera();

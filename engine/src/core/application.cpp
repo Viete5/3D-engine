@@ -2,9 +2,11 @@
 #include "../include/core/log.hpp"
 #include "../include/core/paths.hpp"
 #include "../include/core/time.hpp"
+#include "../include/assets/fontLoader.hpp"
 #include "../include/platform/input.hpp"
 #include "../include/platform/window.hpp"
 #include "../include/render/renderer.hpp"
+#include "../include/render/textRenderer.hpp"
 #include "../include/scene/scene.hpp"
 
 #include <glad/glad.h>
@@ -20,6 +22,8 @@ Application::Application()
     : window(),
       input(),
       renderer(),
+      text_renderer(nullptr),
+      ui_font(nullptr),
       logger(),
       time(),
       paths(),
@@ -74,6 +78,9 @@ int Application::run(const ApplicationConfig& config) {
 
             scene->update(context);
             renderer.render(*scene);
+            if (text_renderer && ui_font) {
+                scene->render_ui(*text_renderer, *ui_font, window.get_width(), window.get_height());
+            }
 
             window.swap_buffers();
         }
@@ -116,6 +123,20 @@ bool Application::initialize(const ApplicationConfig& config) {
 
     input.attach(window.get_window());
     window.set_cursor_disabled(true);
+
+    text_renderer = std::make_unique<engine::render::TextRenderer>(
+        paths.get_shader_path("text_msdf.vs").string().c_str(),
+        paths.get_shader_path("text_msdf.fs").string().c_str()
+    );
+
+    engine::assets::FontLoader font_loader;
+    ui_font = std::make_unique<engine::render::Font>(
+        font_loader.load_msdf_font(
+            paths.get_font_path("nunito/nunito_regular_msdf.png"),
+            paths.get_font_path("nunito/nunito_regular_msdf.json")
+        )
+    );
+
     return true;
 }
 

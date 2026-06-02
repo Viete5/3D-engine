@@ -10,8 +10,10 @@
 #include "../core/paths.hpp"
 #include "../core/time.hpp"
 #include "../platform/input.hpp"
+#include "../render/font.hpp"
 #include "../platform/window.hpp"
 #include "../render/renderer.hpp"
+#include "../render/textRenderer.hpp"
 
 namespace engine::scene {
 class Scene;
@@ -47,6 +49,8 @@ private:
     engine::platform::Window window;
     engine::platform::Input input;
     engine::render::Renderer renderer;
+    std::unique_ptr<engine::render::TextRenderer> text_renderer;
+    std::unique_ptr<engine::render::Font> ui_font;
     Logger logger;
     Time time;
     Paths paths;

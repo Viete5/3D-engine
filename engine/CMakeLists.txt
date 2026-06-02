@@ -1,6 +1,7 @@
 add_library(engine STATIC
     src/assets/stb.cpp
     src/assets/modelLoader.cpp
+    src/assets/fontLoader.cpp
     src/assets/textureLoader.cpp
 
     src/core/application.cpp
@@ -15,12 +16,15 @@ add_library(engine STATIC
     src/platform/input.cpp
     src/platform/window.cpp
 
+    src/render/font.cpp
     src/render/material.cpp
     src/render/mesh.cpp
     src/render/model.cpp
     src/render/primitives.cpp
     src/render/renderer.cpp
     src/render/shader.cpp
+    src/render/textMeshBuilder.cpp
+    src/render/textRenderer.cpp
     src/render/texture.cpp
 
     src/renderOpenGl/GLIndexBuffer.cpp
