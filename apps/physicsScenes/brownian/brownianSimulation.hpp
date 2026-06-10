@@ -2,11 +2,11 @@
 #define BROWNIAN_SIMULATION_HPP
 
 #include "brownianParticle.hpp"
+#include "dataStructures/dynamicArray.hpp"
 
 #include "../../../engine/include/math/vector.hpp"
 
 #include <random>
-#include <vector>
 
 // электрическое поле. Аттрактор. Управление большой частицы
 
@@ -21,7 +21,7 @@ public:
     void set_paused(bool value);
     void toggle_pause();
 
-    const std::vector<BrownianParticle>& get_particles() const;
+    const brownian::data_structures::DynamicArray<BrownianParticle>& get_particles() const;
     float get_temperature() const;
     bool get_paused() const;
 
@@ -46,7 +46,7 @@ protected:
     void resolve_particle_collision(BrownianParticle& first, BrownianParticle& second) const;
     void resolve_particle_collisions();
 
-    std::vector<BrownianParticle> particles;
+    brownian::data_structures::DynamicArray<BrownianParticle> particles;
     std::mt19937 generator;
     engine::math::Vector bounds;
     float temperature = 1.0f;

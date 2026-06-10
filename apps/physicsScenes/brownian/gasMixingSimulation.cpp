@@ -92,7 +92,7 @@ void GasMixingSimulation::set_gas_particle_count(BrownianGasType gas_type, int n
 
     if (new_count > current_count) {
         const int add_count = new_count - current_count;
-        particles.reserve(particles.size() + static_cast<std::size_t>(add_count));
+        particles.reserve(particles.get_size() + static_cast<std::size_t>(add_count));
 
         for (int index = 0; index < add_count; ++index) {
             add_particle(gas_type);
@@ -197,9 +197,9 @@ void GasMixingSimulation::add_particle(BrownianGasType gas_type) {
 }
 
 void GasMixingSimulation::remove_particles(BrownianGasType gas_type, int remove_count) {
-    for (std::size_t index = particles.size(); index > 0 && remove_count > 0; --index) {
+    for (std::size_t index = particles.get_size(); index > 0 && remove_count > 0; --index) {
         if (particles[index - 1].gas_type == gas_type) {
-            particles.erase(particles.begin() + static_cast<std::ptrdiff_t>(index - 1));
+            particles.erase(index - 1);
             --remove_count;
         }
     }

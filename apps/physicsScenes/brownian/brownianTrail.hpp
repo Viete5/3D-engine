@@ -1,12 +1,13 @@
 #ifndef BROWNIAN_TRAIL_HPP
 #define BROWNIAN_TRAIL_HPP
 
+#include "dataStructures/deque.hpp"
+
 #include "../../../engine/include/math/vector.hpp"
 #include "../../../engine/include/math/vector4.hpp"
 #include "../../../engine/include/render/mesh.hpp"
 
 #include <cstddef>
-#include <deque>
 
 struct BrownianTrailSettings {
     float max_age = 10.0f;
@@ -40,7 +41,7 @@ public:
 
 private:
     BrownianTrailSettings settings;
-    std::deque<TrailPoint> points;
+    brownian::data_structures::Deque<TrailPoint> points;
     engine::render::Mesh mesh;
 
     void add_point_if_needed(const engine::math::Vector& position, float current_time);

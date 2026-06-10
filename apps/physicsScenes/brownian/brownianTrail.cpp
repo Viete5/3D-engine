@@ -1,7 +1,8 @@
 #include "brownianTrail.hpp"
 
+#include "dataStructures/dynamicArray.hpp"
+
 #include <algorithm>
-#include <vector>
 
 namespace {
 
@@ -30,7 +31,10 @@ BrownianTrail::BrownianTrail()
 
 BrownianTrail::BrownianTrail(const BrownianTrailSettings& settings)
     : settings(settings),
-      mesh(std::vector<engine::render::Vertex>{}, std::vector<unsigned int>{}) {
+      mesh(
+          brownian::data_structures::DynamicArray<engine::render::Vertex>().to_std_vector(),
+          brownian::data_structures::DynamicArray<unsigned int>().to_std_vector()
+      ) {
 }
 
 void BrownianTrail::reset(const engine::math::Vector& position, float current_time) {
@@ -62,7 +66,7 @@ const BrownianTrailSettings& BrownianTrail::get_settings() const {
 }
 
 std::size_t BrownianTrail::get_point_count() const {
-    return points.size();
+    return points.get_size();
 }
 
 void BrownianTrail::add_point_if_needed(const engine::math::Vector& position, float current_time) {
@@ -77,14 +81,14 @@ void BrownianTrail::add_point_if_needed(const engine::math::Vector& position, fl
 
     points.push_back(TrailPoint{position, current_time});
 
-    while (points.size() > settings.max_points) {
+    while (points.get_size() > settings.max_points) {
         points.pop_front();
     }
 }
 
 void BrownianTrail::remove_expired_points(float current_time) {
     while (
-        points.size() > 1 &&
+        points.get_size() > 1 &&
         current_time - points.front().time > settings.max_age
     ) {
         points.pop_front();
@@ -92,18 +96,18 @@ void BrownianTrail::remove_expired_points(float current_time) {
 }
 
 void BrownianTrail::rebuild_mesh(const engine::math::Vector& camera_position, float current_time) {
-    if (points.size() < 2) {
+    if (points.get_size() < 2) {
         mesh.update_data({}, {});
         return;
     }
 
-    std::vector<engine::render::Vertex> vertices;
-    std::vector<unsigned int> indices;
+    brownian::data_structures::DynamicArray<engine::render::Vertex> vertices;
+    brownian::data_structures::DynamicArray<unsigned int> indices;
 
-    vertices.reserve(points.size() * 2);
-    indices.reserve((points.size() - 1) * 6);
+    vertices.reserve(points.get_size() * 2);
+    indices.reserve((points.get_size() - 1) * 6);
 
-    for (std::size_t point_index = 0; point_index < points.size(); ++point_index) {
+    for (std::size_t point_index = 0; point_index < points.get_size(); ++point_index) {
         const TrailPoint& point = points[point_index];
         const engine::math::Vector side = get_side_vector(point_index, camera_position);
         const engine::math::Vector view_normal =
@@ -128,7 +132,7 @@ void BrownianTrail::rebuild_mesh(const engine::math::Vector& camera_position, fl
         });
     }
 
-    for (std::size_t point_index = 0; point_index + 1 < points.size(); ++point_index) {
+    for (std::size_t point_index = 0; point_index + 1 < points.get_size(); ++point_index) {
         const unsigned int current_left = static_cast<unsigned int>(point_index * 2);
         const unsigned int current_right = current_left + 1;
         const unsigned int next_left = current_left + 2;
@@ -143,11 +147,11 @@ void BrownianTrail::rebuild_mesh(const engine::math::Vector& camera_position, fl
         indices.push_back(next_right);
     }
 
-    mesh.update_data(vertices, indices);
+    mesh.update_data(vertices.to_std_vector(), indices.to_std_vector());
 }
 
 engine::math::Vector BrownianTrail::get_tangent(std::size_t point_index) const {
-    if (points.size() < 2) {
+    if (points.get_size() < 2) {
         return engine::math::Vector(1.0f, 0.0f, 0.0f);
     }
 
@@ -155,7 +159,7 @@ engine::math::Vector BrownianTrail::get_tangent(std::size_t point_index) const {
         return safe_normalize(points[1].position - points[0].position, engine::math::Vector(1.0f, 0.0f, 0.0f));
     }
 
-    if (point_index + 1 == points.size()) {
+    if (point_index + 1 == points.get_size()) {
         return safe_normalize(
             points[point_index].position - points[point_index - 1].position,
             engine::math::Vector(1.0f, 0.0f, 0.0f)

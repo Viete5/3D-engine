@@ -47,7 +47,7 @@ void ParticleSimulationBase::toggle_pause() {
     paused = !paused;
 }
 
-const std::vector<BrownianParticle>& ParticleSimulationBase::get_particles() const {
+const brownian::data_structures::DynamicArray<BrownianParticle>& ParticleSimulationBase::get_particles() const {
     return particles;
 }
 
@@ -163,8 +163,8 @@ void ParticleSimulationBase::resolve_particle_collision(
 }
 
 void ParticleSimulationBase::resolve_particle_collisions() {
-    for (std::size_t first_index = 0; first_index < particles.size(); ++first_index) {
-        for (std::size_t second_index = first_index + 1; second_index < particles.size(); ++second_index) {
+    for (std::size_t first_index = 0; first_index < particles.get_size(); ++first_index) {
+        for (std::size_t second_index = first_index + 1; second_index < particles.get_size(); ++second_index) {
             resolve_particle_collision(particles[first_index], particles[second_index]);
         }
     }

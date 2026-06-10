@@ -130,7 +130,7 @@ void LargeParticleBrownianSimulation::remove_particles(int remove_count) {
         return;
     }
 
-    const std::size_t current_count = particles.size();
+    const std::size_t current_count = particles.get_size();
     const std::size_t count_to_remove = std::min(
         static_cast<std::size_t>(remove_count),
         current_count

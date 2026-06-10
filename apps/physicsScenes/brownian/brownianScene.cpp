@@ -92,7 +92,7 @@ BrownianScene::BrownianScene(const engine::core::Paths& paths, engine::core::Log
     logger.info(
         engine::core::LogCategory::Scene,
         "Brownian scene created: default mode=large-particle particles=" +
-            std::to_string(large_particle_simulation.get_particles().size())
+            std::to_string(large_particle_simulation.get_particles().get_size())
     );
 }
 
@@ -159,8 +159,8 @@ void BrownianScene::rebuild_scene_objects() {
 }
 
 void BrownianScene::create_large_particle_objects() {
-    const std::vector<BrownianParticle>& particles = large_particle_simulation.get_particles();
-    particle_object_count = particles.size();
+    const auto& particles = large_particle_simulation.get_particles();
+    particle_object_count = particles.get_size();
     objects.reserve(particle_object_count + 3);
 
     for (std::size_t index = 0; index < particle_object_count; ++index) {
@@ -184,11 +184,11 @@ void BrownianScene::create_large_particle_objects() {
 }
 
 void BrownianScene::create_gas_particle_objects() {
-    const std::vector<BrownianParticle>& particles = gas_mixing_simulation.get_particles();
-    particle_object_count = particles.size();
-    objects.reserve(particles.size() + 2);
+    const auto& particles = gas_mixing_simulation.get_particles();
+    particle_object_count = particles.get_size();
+    objects.reserve(particles.get_size() + 2);
 
-    for (std::size_t index = 0; index < particles.size(); ++index) {
+    for (std::size_t index = 0; index < particles.get_size(); ++index) {
         objects.emplace_back(
             "gas_particle_" + std::to_string(index),
             make_particle_transform(particles[index]),
@@ -253,8 +253,8 @@ void BrownianScene::sync_large_particle_objects() {
         rebuild_scene_objects();
     }
 
-    const std::vector<BrownianParticle>& particles = large_particle_simulation.get_particles();
-    const std::size_t synced_count = std::min(particles.size(), particle_object_count);
+    const auto& particles = large_particle_simulation.get_particles();
+    const std::size_t synced_count = std::min(particles.get_size(), particle_object_count);
 
     for (std::size_t index = 0; index < synced_count; ++index) {
         objects[index].get_transform().set_position(particles[index].position);
@@ -272,8 +272,8 @@ void BrownianScene::sync_gas_particle_objects() {
         rebuild_scene_objects();
     }
 
-    const std::vector<BrownianParticle>& particles = gas_mixing_simulation.get_particles();
-    const std::size_t synced_count = std::min(particles.size(), particle_object_count);
+    const auto& particles = gas_mixing_simulation.get_particles();
+    const std::size_t synced_count = std::min(particles.get_size(), particle_object_count);
 
     for (std::size_t index = 0; index < synced_count; ++index) {
         objects[index].get_transform().set_position(particles[index].position);
@@ -424,7 +424,7 @@ void BrownianScene::render_large_particle_ui(
         << "Mode: large particle\n"
         << "FPS: " << current_fps << "\n"
         << "Temperature: " << large_particle_simulation.get_temperature() << "\n"
-        << "Particles: " << large_particle_simulation.get_particles().size() << "\n"
+        << "Particles: " << large_particle_simulation.get_particles().get_size() << "\n"
         << "Paused: " << (large_particle_simulation.get_paused() ? "yes" : "no") << "\n\n"
         << "M - switch to gas mixing\n"
         << "Z/X - particle density\n"
