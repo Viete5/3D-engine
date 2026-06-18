@@ -82,6 +82,7 @@ private:
 
     engine::render::Material small_particle_material;
     engine::render::Material large_particle_material;
+    engine::render::Material attractor_material;
     engine::render::Material gas_a_material;
     engine::render::Material gas_b_material;
     engine::render::Material container_material;
@@ -90,7 +91,9 @@ private:
 
     std::size_t particle_object_count = 0;
     std::size_t large_particle_object_index = 0;
+    std::size_t attractor_object_index = 0;
     std::size_t synced_large_particle_revision = 0;
+    std::size_t synced_attractor_revision = 0;
     std::size_t synced_gas_particle_revision = 0;
 
     float current_fps = 0.0f;

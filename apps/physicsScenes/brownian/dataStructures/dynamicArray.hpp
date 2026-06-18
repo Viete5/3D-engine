@@ -10,7 +10,7 @@ template <typename T>
 class DynamicArray {
 public:
     DynamicArray();
-    explicit DynamicArray(std::size_t initial_capacity);
+    DynamicArray(std::size_t initial_capacity);
     DynamicArray(const DynamicArray& other);
     DynamicArray& operator=(const DynamicArray& other);
     DynamicArray(DynamicArray&& other) noexcept;

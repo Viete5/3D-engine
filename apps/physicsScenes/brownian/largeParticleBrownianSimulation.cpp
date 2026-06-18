@@ -23,6 +23,7 @@ LargeParticleBrownianSimulation::LargeParticleBrownianSimulation(
 void LargeParticleBrownianSimulation::reset() {
     temperature = clamp_temperature(settings.initial_temperature);
     settings.particle_count = std::clamp(settings.particle_count, 0, settings.max_particle_count);
+    attractor_active = false;
 
     particles.clear();
     particles.reserve(static_cast<std::size_t>(std::max(0, settings.particle_count)));
@@ -39,11 +40,18 @@ void LargeParticleBrownianSimulation::reset() {
     }
 
     ++particle_revision;
+    ++attractor_revision;
 }
 
 void LargeParticleBrownianSimulation::update(float delta_time) {
     if (paused || delta_time <= 0.0f) {
         return;
+    }
+
+    if (attractor_active) {
+        move_particle(attractor, delta_time);
+        resolve_wall_collision(attractor);
+        apply_attractor_force(delta_time);
     }
 
     for (BrownianParticle& particle : particles) {
@@ -92,12 +100,76 @@ void LargeParticleBrownianSimulation::change_particle_count(int delta) {
     set_particle_count(settings.particle_count + delta);
 }
 
+void LargeParticleBrownianSimulation::toggle_attractor() {
+    if (attractor_active) {
+        remove_attractor();
+        return;
+    }
+
+    create_attractor();
+}
+
+void LargeParticleBrownianSimulation::create_attractor() {
+    attractor.position = random_position_inside_bounds(settings.attractor_radius);
+    attractor.previous_position = attractor.position;
+    attractor.velocity = random_direction() * settings.attractor_speed;
+    attractor.color = engine::math::Vector(0.72f, 0.24f, 1.0f);
+    attractor.radius = settings.attractor_radius;
+    attractor.mass = settings.attractor_mass;
+
+    attractor_active = true;
+    ++attractor_revision;
+}
+
+void LargeParticleBrownianSimulation::remove_attractor() {
+    if (!attractor_active) {
+        return;
+    }
+
+    attractor_active = false;
+    ++attractor_revision;
+}
+
+const BrownianParticle& LargeParticleBrownianSimulation::get_attractor() const {
+    return attractor;
+}
+
+bool LargeParticleBrownianSimulation::get_attractor_active() const {
+    return attractor_active;
+}
+
+std::size_t LargeParticleBrownianSimulation::get_attractor_revision() const {
+    return attractor_revision;
+}
+
 int LargeParticleBrownianSimulation::get_particle_count() const {
     return settings.particle_count;
 }
 
 std::size_t LargeParticleBrownianSimulation::get_particle_revision() const {
     return particle_revision;
+}
+
+void LargeParticleBrownianSimulation::apply_attractor_force(float delta_time) {
+    for (BrownianParticle& particle : particles) {
+        const engine::math::Vector distance_vector = attractor.position - particle.position;
+        const float distance = distance_vector.dist();
+
+        if (distance <= minimum_distance) {
+            continue;
+        }
+
+        const engine::math::Vector direction = distance_vector * (1.0f / distance);
+        const float softened_distance_squared =
+            distance * distance +
+            settings.attractor_softening * settings.attractor_softening;
+        const float acceleration =
+            settings.attractor_gravity_coeff *
+            attractor.mass /
+            softened_distance_squared;
+
+        particle.velocity = particle.velocity + direction * acceleration * delta_time;
+    }
 }
 
 BrownianParticle LargeParticleBrownianSimulation::create_small_particle() {

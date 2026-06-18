@@ -74,6 +74,7 @@ BrownianScene::BrownianScene(const engine::core::Paths& paths, engine::core::Log
       large_particle_trail(),
       small_particle_material(shader),
       large_particle_material(shader),
+      attractor_material(shader),
       gas_a_material(shader),
       gas_b_material(shader),
       container_material(shader),
@@ -81,6 +82,7 @@ BrownianScene::BrownianScene(const engine::core::Paths& paths, engine::core::Log
       trail_material(shader) {
     small_particle_material.set_base_color(engine::math::Vector(0.15f, 0.52f, 1.0f));
     large_particle_material.set_base_color(engine::math::Vector(1.0f, 0.67f, 0.18f));
+    attractor_material.set_base_color(engine::math::Vector(0.72f, 0.24f, 1.0f));
     gas_a_material.set_base_color(engine::math::Vector4(0.08f, 0.52f, 1.0f, 1.0f));
     gas_b_material.set_base_color(engine::math::Vector4(1.0f, 0.26f, 0.12f, 1.0f));
     container_material.set_base_color(engine::math::Vector4(0.12f, 0.38f, 0.78f, 0.11f));
@@ -146,6 +148,7 @@ void BrownianScene::rebuild_scene_objects() {
     objects.clear();
     particle_object_count = 0;
     large_particle_object_index = 0;
+    attractor_object_index = 0;
 
     if (mode == Mode::LargeParticle) {
         create_large_particle_objects();
@@ -181,6 +184,18 @@ void BrownianScene::create_large_particle_objects() {
     );
 
     synced_large_particle_revision = large_particle_simulation.get_particle_revision();
+
+    if (large_particle_simulation.get_attractor_active()) {
+        attractor_object_index = objects.size();
+        objects.emplace_back(
+            "attractor",
+            make_particle_transform(large_particle_simulation.get_attractor()),
+            &attractor_material,
+            &particle_mesh
+        );
+    }
+
+    synced_attractor_revision = large_particle_simulation.get_attractor_revision();
 }
 
 void BrownianScene::create_gas_particle_objects() {
@@ -249,7 +264,10 @@ void BrownianScene::create_trail_object() {
 }
 
 void BrownianScene::sync_large_particle_objects() {
-    if (synced_large_particle_revision != large_particle_simulation.get_particle_revision()) {
+    if (
+        synced_large_particle_revision != large_particle_simulation.get_particle_revision() ||
+        synced_attractor_revision != large_particle_simulation.get_attractor_revision()
+    ) {
         rebuild_scene_objects();
     }
 
@@ -263,6 +281,12 @@ void BrownianScene::sync_large_particle_objects() {
     if (large_particle_object_index < objects.size()) {
         objects[large_particle_object_index].get_transform().set_position(
             large_particle_simulation.get_large_particle().position
+        );
+    }
+
+    if (large_particle_simulation.get_attractor_active() && attractor_object_index < objects.size()) {
+        objects[attractor_object_index].get_transform().set_position(
+            large_particle_simulation.get_attractor().position
         );
     }
 }
@@ -369,6 +393,10 @@ void BrownianScene::handle_large_particle_input(const engine::scene::SceneUpdate
     if (input.is_key_pressed(engine::platform::Key::X)) {
         large_particle_simulation.change_particle_count(large_particle_simulation.get_settings().density_step);
     }
+    if (input.is_key_pressed(engine::platform::Key::C)) {
+        large_particle_simulation.toggle_attractor();
+        rebuild_scene_objects();
+    }
 
     large_particle_simulation.set_temperature(std::clamp(temperature, 0.1f, 5.0f));
 }
@@ -425,9 +453,11 @@ void BrownianScene::render_large_particle_ui(
         << "FPS: " << current_fps << "\n"
         << "Temperature: " << large_particle_simulation.get_temperature() << "\n"
         << "Particles: " << large_particle_simulation.get_particles().get_size() << "\n"
+        << "Attractor: " << (large_particle_simulation.get_attractor_active() ? "on" : "off") << "\n"
         << "Paused: " << (large_particle_simulation.get_paused() ? "yes" : "no") << "\n\n"
         << "M - switch to gas mixing\n"
         << "Z/X - particle density\n"
+        << "C - toggle attractor\n"
         << "Q/E - temperature\n"
         << "P - pause   R - reset\n"
         << "WASD/Space/Ctrl + Mouse - camera\n"

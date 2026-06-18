@@ -18,11 +18,11 @@ struct LargeParticleBrownianSimulationSettings {
     float large_mass = 3.0f;
     float base_speed = 2.0f;
 
-    float attracor_radius = 0.18f;
+    float attractor_radius = 0.45f;
     float attractor_mass = 3.0f;
     float attractor_speed = 1.4f;
-    float attractor_gravity_coeff = 2.5f;
-    float attractor_softening;
+    float attractor_gravity_coeff = 1.5f;
+    float attractor_softening = 0.25f;
 
     float initial_temperature = 1.15f;
     float restitution = 0.98f;
@@ -60,8 +60,9 @@ private:
 
     BrownianParticle attractor;
     bool attractor_active = false;
-    std::size_t attractor_revision;
+    std::size_t attractor_revision = 0;
 
+    void apply_attractor_force(float delta_time);
     BrownianParticle create_small_particle();
     void add_particle();
     void remove_particles(int remove_count);
